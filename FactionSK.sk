@@ -1,1 +1,1038 @@
-Test
+#Factions by Forbi, Marianoz@vera.com.uy
+#0.2b
+#
+#0.3b
+#- claim, only if there is no region present (so make sure you claim some zones with wg to act like warzone)
+#- claim only in the world faction (you can add other world)
+#- fix the dtr system, if the faction only has 1 player
+#- fix the /f tag, wasn't workig  properly 
+#- change how the "name" tag is refreshing, I don't need it to check every second. Insted I check when some events happens (change of relation between players) like:
+#  f create, f ally, f disband, f kick, f leave, f join,f neutral, f tag, on join, 
+#- small change on damage
+#- protected stuff on option I
+#- protect @I from left click
+#- protect any block from right click
+#- fix claim issue
+#- change how i represent unfactioned players, set em to wilder (on script load and on join) if they don't have a faction
+#- added /f c (chages between ally chat, global chat and faction chat)
+#- fix faction's owner was able to kick himself XD
+#- Faction owner can now use /f leave if the faction is empty
+#- other stuff that i can't remember right now
+
+#0.4b
+# chat system optional @C
+# translated by CrazzyPanda
+# /f mod [gives a player the mod range]
+
+#0.5b:
+# Fixed all the stuff that I broke!
+# Now I save the player data in FAC::players::%player%
+# /F show can now be used like:
+# /f show [faction-name]
+# /f show [player-name]
+# /f show
+# If there is a player with the same name of a faction, the command will show the faction info, no the player's faction
+# f tag now keeps the ally if there was one
+# changed the Tag function
+# fixed : player was able to create faction with a name of 3 chars
+# f disband now will break the ally if there was one
+# fixed the /f kick [player was still able to self kick]
+# on owner change, the owner will lose the mod range
+# on owner change, notify the whole faction about the event
+# changed the dtr system
+# dtr freeze on player kick
+# dtr penalty on player kick, use the option tu set the amount
+# max amount of land per faction
+# show max lands on /f show
+# now you can use the options:
+# the max amount of dtr a faction may have
+# max-dtr: 5.5
+# the minimun amount of dtr
+# min-dtr: -5.5
+# how much a player increments the max dtr of a faction
+# player-dtr: 0.51
+# max dtr of a faction with 1 player
+# solo-faction: 1.01
+# dtr freeze in seconds:
+# dtr-freeze: 3600
+# you know..
+# kick-penalty: 1.0
+# you know..
+# death-dtr: 1.0
+# How much a faction wins per minute and per player
+# minute-dtr: 0.01
+# Max amount of land per faction
+# faction-land-max: 36
+# How much land a faction gets per member
+# land-per-player: 6
+
+
+options:
+	#World where you can claim lands
+	W: "F" or "insert-another-world-if-you-need"
+	I: jungle door block or birch door block or dark oak door block or acacia door block or oak door block or acacia fence gate or birch fence gate or jungle fence gate or dark oak fence gate or oak fence gate or spruce fence gate or chest or enchantment table or furnace or brewing stand or trapped_chest or beacon or _lever or spruce door block or oak trapdoor or hopper or stone button or wooden button or dispenser or _anvil or trapped_chest
+	#Use chat system: true or false
+	C: true
+	#Prefix, yes with double quotes
+	Prefix: ""&6[&9Forbidden HCF&6]"" 
+	#
+	# DTR STUFF
+	#
+	#the max amount of dtr a faction may have
+	max-dtr: 5.5
+	#the minimun amount of dtr
+	min-dtr: -5.5
+	#how much a player increments the max dtr of a faction
+	player-dtr: 0.51
+	#max dtr of a faction with 1 player
+	solo-faction: 1.01
+	#dtr freeze in seconds:
+	dtr-freeze: 3600
+	#you know..
+	kick-penalty: 1.0
+	#you know..
+	death-dtr: 1.0
+	#How much a faction wins per minute and per player
+	minute-dtr: 0.01
+	#
+	#LAND STUFF
+	#
+	faction-land-max: 36
+	# How much land a faction gets per member
+	land-per-player: 6
+
+on script load:
+	loop {FAC::*}:
+		if {FAC::%loop-value%.faction} isn't set:
+			set {FAC::%loop-value%.faction} to "wilder"	
+	set {FAC.chatsystem} to {@C}
+	
+function PlayerFaction(l: location):
+	loop all players:
+		set {_F} to {FAC::players::%loop-player%.faction}
+		#TAG FACTIONS
+		if {_F} isn't "wilder":		
+			make all players see loop-player-1's prefix as "&c" 	
+			loop {FAC::factions::%{_F}%::players::*}:
+				set {_p} to loop-value-1
+				loop {FAC::factions::%{_F}%::players::*}:		
+					make loop-value-2 see loop-value-3's prefix as "&2"
+				if {FAC::factions::%{_F}%::ally.activa} is true:
+					set {_ally} to {FAC::factions::%{_F}%::ally}
+					loop {FAC::factions::%{_ally}%::players::*}:
+						make loop-value-3 see loop-value-1's prefix as "&d"	
+		else:
+			make all players see loop-player's prefix as "&c" 				
+						
+function fshow(F: text, p: player):				
+	set {_owner} to {FAC::factions::%{_F}%::owner}
+	set {_offline} to 0
+	set {_online} to 0
+	set {_lands} to 0
+	loop {FAC::factions::%{_F}%::players::*}:
+		set {_jugadores} to {_jugadores}+1					
+		if {_jugadores} is more than 1:		
+			set {_maxfactiondtr} to ({_jugadores} - 1) * {@player-dtr} + {@solo-faction}
+		else:
+			set {_maxfactiondtr} to {@solo-faction}
+	loop {FAC::factions::%{_F}%::players::*}:
+		if loop-value is online:					
+			set {_online} to {_online}+1
+		set {_offline} to {_offline}+1
+	if {FAC::factions::%{_F}%::home} is set:
+		set {_home} to {FAC::factions::%{_F}%::home}
+	else:
+		set {_home} to "No home"
+	set {_dtr} to {FAC::factions::%{_F}%::dtr}
+	loop {FAC::factions::%{_F}%::lands::*}:
+		set {_lands} to {_lands}+1
+	if {FAC::factions::%{_F}%::dtr.freeze} is greater than now:
+		set {_freeze} to "Yes"
+		set {_until} to difference between {FAC::factions::%{_F}%::dtr.freeze} and now
+		set {_icono} to ""
+	else:
+		set {_freeze} to "no"
+		set {_icono} to "&2▲"
+	loop {FAC::factions::%{_F}%::players::*}:
+		if loop-value is online:
+			if {_jugadoresonline} isn't set:
+				set {_jugadoresonline} to "&2%loop-value%"
+			else:
+				set {_jugadoresonline} to "&2%{_jugadoresonline}%&f, &2%loop-value%"
+				
+	set {_players} to 0
+	loop {FAC::factions::%{_F}%::players::*}:
+		set {_players} to {_players}+1 
+	set {_maxlands} to {_players}*{@land-per-player}
+	if {_maxlands} is greater than {@faction-land-max}:
+		set {_maxlands} to {@faction-land-max}						
+	send "&6----------&cForbidden&9HCF&6----------" to {_p}
+	send "&eFaction: &f%{_F}%" to {_p}
+	send "&eOwner: &6%{_owner}%" to {_p}
+	send "&ePlayers: &2%{_online}% &f/ &c%{_offline}%" to {_p}
+	send "&eDTR: &2%{_icono}%&c%{_dtr}%&6 / &c%{_maxfactiondtr}%" to {_p}
+	send "&eFaction Home: &b%{_home}%" to {_p}		
+	send "&eLand: %{_lands}% / %{_maxlands}%" to {_p}
+	if {_freeze} is "Yes":
+		send "&b&lDTR Freeze: &f%{_until}%" to {_p}
+	else:
+		send "&b&lDTR Freeze: &f%{_freeze}%" to {_p}
+	send "&bPlayers: &f%{_jugadoresonline}%" to {_p}
+	send "&6--------------------------------" to {_p}
+	
+command clear-factions:
+	trigger:
+		delete {FAC::*}
+		delete {FAC.chatsystem}
+		broadcast "&4&lDeleted all variables from FactionsSk"
+		
+		
+			
+command f [<text>] [<text>]:
+	trigger:
+		if arg-1 is "create":
+			if {FAC::players::%player%.faction} isn't "wilder":
+				send "%{@Prefix}% You are alredy in a faction"
+				stop
+			else:	
+				if arg-2 is set:
+					set {_l} to length of the arg-2
+					if {_l} is less than 4:
+						send "%{@Prefix}% The faction name needs at leat 3 characters"
+						stop
+					else:
+						if {FAC::factions::%arg-2%} is set:
+							send "%{@Prefix}% There is a faction named: %arg-2%"
+							stop
+						else:
+							set {FAC::factions::%arg-2%} to arg-2 #creo la fction
+							set {FAC::factions::%arg-2%::owner} to player #dueño de la faction
+							set {FAC::factions::%arg-2%::mods::%player%} to player #dueño de la faction
+							set {FAC::factions::%arg-2%::dtr} to 0 #dtr de la faction
+							set {FAC::factions::%arg-2%::players::%player%} to player
+							set {FAC::factions::%arg-2%::dtr.raideable} to false
+							set {FAC::players::%player%.faction} to arg-2 #faction del jugador
+							send "%{@Prefix}%  Faction made: %arg-2%"
+							set prefix of player to "Owner"
+							set suffix of player to "<green>"
+							broadcast "%{@Prefix}%  %player% made the faction %arg-2%"
+							PlayerFaction(player's location)
+				else:
+					send "%{@Prefix}% The faction name can't be empty"
+
+#/f invite {player} [invite a player to join your faction]					
+		if arg-1 is "invite":
+			if {FAC::players::%player%.faction} is "wilder":
+				send "%{@Prefix}% You need a faction to use this command"
+				stop
+			else:	
+				set {_F} to {FAC::players::%player%.faction}
+				loop {FAC::factions::%{_F}%::mods::*}:
+					if loop-value is player:
+						set {_ismod} to true
+						if arg-2 is set:
+							set {_l} to length of the arg-2
+							if {_l} is more than 16:
+								send "%{@Prefix}% Incorrect player name"
+								stop
+							else:
+								if arg-2 parsed as player is online:
+									if {FAC::players::%arg-2%.faction} isn't "wilder":
+										send "%{@Prefix}% %arg-2% is already in a faction"
+										stop
+									else:
+										set {_p} to arg-2 parsed as player
+										send "%{@Prefix}% %player% invites you to join %{FAC::players::%player%.faction}%" to {_p}
+										send "%{@Prefix}% Use /f join %player% to join " to {_p}
+										set {FAC::players::%{_p}%.invitaciones::%{_F}%} to {_F} #guardo listado de que faction fue invitado
+										send "%{@Prefix}% You invited %arg-2% to join your faction"
+										stop
+						else:
+							send "%{@Prefix}% You must specify a player"
+							stop
+				if {_ismod} isn't set:
+					send "%{@Prefix}% Only mods can invite other players to the faction"
+					
+					
+#/f deinvite {player} [cancel a player request ]					
+		if arg-1 is "deinvite":
+			if {FAC::players::%player%.faction} isn't set:
+				send "%{@Prefix}% You need a faction to use this command"
+				stop
+			else:	
+				set {_F} to {FAC::players::%player%.faction}
+				loop {FAC::factions::%{_F}%::mods::*}:
+					if loop-value is player:
+						set {_ismod} to true
+						if arg-2 is set:
+							set {_l} to length of the arg-2
+							if {_l} is more than 16:
+								send "%{@Prefix}% Incorrect player name"
+								stop
+							else:
+								if arg-2 parsed as player is online:
+									if {FAC::players::%arg-2%.invitaciones::%{_F}%} is set:
+										set {_p} to arg-2 parsed as player
+										send "%{@Prefix}% You deinvited %{_p}%" to player
+										delete {FAC::players::%arg-2%.invitaciones::%{_F}%} #guardo listado de que faction fue invitado
+										stop
+									else:	
+										send "%{@Prefix}%%{_p}% wasn't invited to your faction" to player
+										stop
+						else:
+							send "%{@Prefix}% You must specify a player"
+							stop
+				if {_ismod} isn't set:
+					send "%{@Prefix}% Only mods can invite other players to the faction"
+					
+					
+#/f join {factionname} or {request_sender} [join the player to a faction]					
+		if arg-1 is "join":
+			if {FAC::players::%player%.faction} isn't "wilder":
+				send "%{@Prefix}%  You are already in a faction"
+				stop
+			else:	
+				if arg-2 is set:
+					set {_l} to length of the arg-2
+					if {_l} is more than 16:
+						send "%{@Prefix}% The name must contain at least 3 characters"
+						stop
+					else:
+						if arg-2 parsed as player is online:
+							set {_p} to arg-2 parsed as player
+							set {_p} to {FAC::players::%{_p}%.faction}
+							#send "ok %{_p}%"
+						else:
+							set {_p} to arg-2
+						if {FAC::players::%player%.invitaciones::%{_p}%} isn't set:
+							send "%{@Prefix}% %arg-2% didn't invted you to %{_p}%"
+							stop
+						else:							
+							set {FAC::players::%player%.faction} to {_p} #agrego el usuario a la faction
+							set {FAC::factions::%{_p}%::players::%player%} to player 
+							loop {FAC::factions::%{_p}%::players::*}:
+								send "%{@Prefix}% %player% joined the faction" to loop-value
+							send "%{@Prefix}% You are now part of the faction" 
+							delete {FAC::players::%player%.invitaciones::*} #elimino invitaciones pendientes del usuario
+							PlayerFaction(player's location)
+				else:
+					broadcast "%{@Prefix}% You must specify a player name or a faction"					
+					
+#/f unclaim {deletes a faction chunk}		
+		if arg-1 is "unclaim":
+			if {FAC::players::%player%.faction} isn't "wilder":
+				set {_F} to {FAC::players::%player%.faction}
+				loop {FAC::factions::%{_F}%::mods::*}:
+					if loop-value is player:
+						set {_ismod} to true
+						if {FAC::factions::%{_F}%::owner} is player:
+							set {_chunk} to chunk at player's location
+							if {FAC::chunks::%chunk at player's location%.owner} is {_F}:
+								delete {FAC::chunks::%{_chunk}%}
+								delete {FAC::chunks::%{_F}%.%{_chunk}%}	
+								delete {FAC::factions::%{_F}%::lands::%{_chunk}%}
+								delete {FAC::chunks::%chunk at player's location%.owner}
+								send "%{@Prefix}% You unclaimed this chunk"
+								stop
+							else:
+								send "%{@Prefix}% You can only use this command on your land"
+								stop
+						else:
+							send "%{@Prefix}% You must be the owner to unclaim"
+							stop
+				if {_ismod} isn't set:
+					send "%{@Prefix}% You must be a mod to unclaim"
+					stop				
+			else:
+				send "%{@Prefix}% You must have a faction to use this command "	
+
+#/F CLAIM {claim a chunk if there is no enemy land aroud and if the chunk is contiguous to the one already claimed by the faction}	
+		if arg-1 is "claim":	
+			if player's world is {@W}:
+				if {FAC::players::%player%.faction} isn't "wilder":
+					set {_F} to {FAC::players::%player%.faction}
+					loop {FAC::factions::%{_F}%::mods::*}:
+						if loop-value is player:
+							set {_ismod} to true
+							
+							set {_players} to 0
+							loop {FAC::factions::%{_F}%::players::*}:
+								set {_players} to {_players}+1 
+							set {_maxlands} to {_players}*{@land-per-player}
+							if {_maxlands} is greater than {@faction-land-max}:
+								set {_maxlands} to {@faction-land-max}								
+							set {_lands} to 0
+							loop {FAC::factions::%{_F}%::lands::*}:
+								set {_lands} to {_lands}+1 								
+							if {_lands} is {_maxlands}:
+								send  "%{@Prefix}% You can't claim more lands, you may need more players or you reached the max amount of lands per factions"
+								stop
+							
+							if {FAC.checkregion} is true:
+								set {_region} to "%region at player%"
+								if {_region} isn't "<none>":
+									send  "%{@Prefix}% You can't claim on the warzone"
+									stop
+							else:	
+								if {FAC::chunks::%chunk at player's location%} isn't set:
+									#Primero busco enemigos a la redonda
+									set {_center} to player's location#location you want to loop the chunks around
+									set {_radius} to 1#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
+									set {_pos} to {_center}
+									loop 2 * {_radius} + 1 times:
+										set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
+										set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
+										loop 2 * {_radius} + 1 times:
+											set {_chunks::%{_pos}%} to chunk at {_pos}
+											add 16 to z-coordinate of {_pos}
+									#comienzo  buscar enemigos
+									set {_enemigofound} to false
+									set {_1} to " "
+									loop {_chunks::*}:
+										set {_1} to "%{_1}%*"
+										loop {FAC::factions::*}:
+											set {_enemigos} to loop-value-2
+											if loop-value-2 isn't {_F}:
+												loop {FAC::factions::%loop-value-2%::lands::*}:
+													if loop-value-1 is loop-value-3:
+														set {_enemigofound} to true
+														send "%{@Prefix}% This chunk is too close to an enemy land"
+														stop	
+									#ahora busco adjuntos	
+									if {_enemigofound} isn't true:	
+										if {FAC::factions::%{_F}%::lands::*} is set:							
+											set {_center} to player's location#location you want to loop the chunks around
+											set {_radius} to 1 #radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
+											set {_pos} to {_center}
+											loop 2 * {_radius} + 1 times:
+												set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
+												set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
+												loop 2 * {_radius} + 1 times:
+													set {_x} to x-coordinate of {_center} - x-coordinate of {_pos}
+													set {_z} to z-coordinate of {_center} - z-coordinate of {_pos}
+													if ({_x} ^ 2 + {_z} ^ 2) <= ({_radius} * 16) ^ 2:
+														set {_chunks2::%{_pos}%} to chunk at {_pos}
+													add 16 to z-coordinate of {_pos}
+											#busco adjuntos
+											set {_contiguo} to false
+											loop {_chunks2::*}:
+												if {FAC::factions::%{_F}%::lands::*} is set:
+													loop {FAC::factions::%{_F}%::lands::*}:
+														if loop-value-2 is loop-value-3:
+															set {_contiguo} to true
+										else:
+											set {_contiguo} to true
+													
+										if {_contiguo} is true:
+											add the chunk at the player's location to {FAC::chunks::%chunk at player's location%} #chunks calimeados
+											set {FAC::chunks::%chunk at player's location%} to chunk at player's location
+											set {FAC::chunks::%chunk at player's location%.owner} to {_F}	
+											add the chunk at the player's location to {FAC::factions::%{_F}%::lands::%chunk at player's location%} #chunks de una factions
+											set {FAC::factions::%{_F}%::lands::%chunk at player's location%} to chunk at player's location
+											send "%{@Prefix}% The land is now claimed by your faction!"
+										else:
+											send "%{@Prefix}% The land must be contiguous to your lands"
+											stop
+								else:
+									send  "%{@Prefix}% This is alredy claimed"
+									stop
+					if  {_ismod} isn't set:
+						send "%{@Prefix}% Only mods can claim land"
+						stop
+				else:
+					send "%{@Prefix}% You must be in a faction to use this command"	
+					stop
+			else:
+				send "%{@Prefix}% You can't claim in this world"	
+				
+				
+#/f tag {text} [sets the new faction name]		
+		if arg-1 is "tag":	
+			if {FAC::players::%player%.faction} isn't  "wilder":
+				set {_F} to {FAC::players::%player%.faction}
+				if {FAC::factions::%{_F}%::owner} is player:
+					if arg-2 is set:
+						set {_l} to length of the arg-2
+						if {_l} is less than 4:
+							broadcast "The name needs at least 3 characters"
+							stop
+						else:
+							loop {FAC::factions::*}:
+								if loop-value is arg-2:
+									send "%{@Prefix}% %arg-2%  is in use"
+									stop
+								else:
+								#Copy/Paste faction
+									set {FAC::factions::%arg-2%} to arg-2
+									set {FAC::factions::%arg-2%::owner}  to {FAC::factions::%{_F}%::owner} 
+									set {FAC::factions::%arg-2%::dtr} to {FAC::factions::%{_F}%::dtr}
+									loop {FAC::factions::%{_F}%::players::*}: 
+										set {_p} to loop-value-2
+										set {FAC::factions::%arg-2%::players::%{_p}%} to {_p} 
+										set {FAC::players::%{_p}%.faction} to arg-2									
+									set {FAC::factions::%arg-2%::dtr.raideable} to {FAC::factions::%{_F}%::dtr.raideable}
+									set {FAC::factions::%arg-2%::lands::*}	 to {FAC::factions::%{_F}%::lands::*}		
+									set {FAC::factions::%arg-2%::dtr.freeze} to {FAC::factions::%{_F}%::dtr.freeze}
+									set {FAC::factions::%arg-2%::home} to {FAC::factions::%{_F}%::home}
+									set {FAC::factions::%arg-2%::ally.activa} to {FAC::factions::%{_F}%::ally.activa}
+									set {FAC::factions::%arg-2%::ally} to {FAC::factions::%{_F}%::ally}		
+
+								#re make the ally
+									if {FAC::factions::%{_F}%::ally.activa} is true:
+										set {_ally} to {FAC::factions::%{_F}%::ally}
+										set {FAC::factions::%arg-2%::ally} to {_ally}
+										set {FAC::factions::%arg-2%::ally.active} to true
+										set {FAC::factions::%{_ally}%::ally} to arg-2
+										set {FAC::factions::%arg-2%::ally.active} to true
+										
+								#Move the players to the new one	
+									loop {FAC::factions::%arg-2%::players::*}:
+										send "%{@Prefix}% The name of the faction was changed to:&c %arg-2%" to loop-value-2
+								#Loop value is a chunk		
+									loop {FAC::factions::%arg-2%::lands::*}:
+										if {FAC::chunks::%loop-value-2%.owner} is {_F}:
+											set {FAC::chunks::%loop-value-2%.owner} to arg-2											
+								#Delete the old faction			
+									delete {FAC::factions::%{_F}%::*}	
+									delete {FAC::factions::%{_F}%}
+									PlayerFaction(player's location)
+					else:
+						send "%{@Prefix}% You need to specify a new name for %{_F}%"
+				else:
+					send "%{@Prefix}%You must be the owner of %{_F}%  to use this command"
+			else:
+				send "%{@Prefix}% This command is only for faction owners"
+					
+					
+#/f sethome [set the faction's home ]				
+		if arg-1 is "sethome":	
+			if {FAC::players::%player%.faction} isn't "wilder":
+				set {_F} to {FAC::players::%player%.faction}
+				loop {FAC::factions::%{_F}%::mods::*}:
+					if loop-value-1 is player:
+						set {_ismod} to true
+						set {_chunk} to chunk at player's location
+						if {FAC::chunks::%chunk at player's location%.owner} is {_F}:
+							set {FAC::factions::%{_F}%::home} to player's location
+							send "%{@Prefix}% The Home was set"
+							loop {FAC::factions::%{_F}%::players::*}:
+								send "%{@Prefix}% Now you can use /F home" to loop-value-2
+							stop	
+						else:
+							send "%{@Prefix}% You can use this command only in your faction land"
+							stop
+				if  {_ismod} isn't set:
+					send "%{@Prefix}% Only mods can claim lands"
+					stop			
+			else:
+				send "%{@Prefix}% You must own a faction to use this command"
+			
+					
+# /F  show  [leave the faction //owner can't leave if the faction isn't empty]	
+		if arg-1 is "show" or "who":
+			if arg-2 is set:
+				set {_l} to length of the arg-2
+				if {_l} is less than 4:
+					broadcast "The name needs at least 3 characters"
+					stop
+				else:				
+					loop {FAC::factions::*}:
+						if loop-value is arg-2:
+							fshow(arg-2,player)
+							stop							
+					loop {FAC::factions::*}:
+						loop {FAC::factions::%loop-value-1%::players::*}:
+							set {_p} to arg-2
+							if loop-value-2 is {_p}:
+								if {FAC::players::%{_p}%.faction} isn't "wilder":
+									fshow({FAC::players::%{_p}%.faction},player)
+									stop
+					send "&5[&cWilder&5]"
+					stop
+			else:
+				if {FAC::players::%player%.faction} isn't "wilder":
+					set {_F} to {FAC::players::%player%.faction}
+					fshow({_F},player)
+					stop
+				else:
+					send "&5[&cWilder&5]"					
+
+#/f home [teleports you to the faction home]				
+		if arg-1 is "home":
+			if {FAC::players::%player%.faction} isn't "wilder":
+				set {_F} to {FAC::players::%player%.faction}
+				if {FAC::factions::%{_F}%::home} is set:
+					teleport player to {FAC::factions::%{_F}%::home}
+				else:
+					send "%{@Prefix}% There is no home set"
+			else: 		
+				send "%{@Prefix}% You don't belong to a faction"
+				
+# /F  leave  [leave the faction //owner can't leave if the faction isn't empty]		
+		if arg-1 is "leave":	
+			if {FAC::players::%player%.faction} is set:			
+				set {_F} to {FAC::players::%player%.faction}
+				if {FAC::factions::%{_F}%::owner} is player:
+					set {_count} to 0
+					loop {FAC::factions::%{_F}%::players::*}:
+						set {_count} to {_count}+1
+					if  {_count} is more than 1:
+						send "%{@Prefix}% You can't leave the faction if the faction isn't empty, use /f disband or /f owner"
+						stop
+					else:	
+						#if the faction is empty,  the owner can leave 
+						#make him to disband the faction
+						make player execute "f disband"
+						stop
+				else:	
+					set {FAC::players::%player%.faction} to "wilder"
+					delete {FAC::factions::%{_F}%::players::%player%}
+					if {FAC::factions::%{_F}%::players::mods::%player%} is set:
+						delete {FAC::factions::%{_F}%::players::mods::%player%}
+					set {FAC::players::%player%.chat} to 1
+					send "%{@Prefix}% You have left the %{_F}%"
+					PlayerFaction(player's location)
+					stop
+			else:
+				send "%{@Prefix}% You must be in a faction to use this command"
+
+#/f list [shows the factions list]				
+		if arg-1 is "list":	
+			if {FAC::Factions::*} is set:			
+				loop {FAC::Factions::*}:
+					send "%loop-value%"
+
+#/f disband  [delete a faction]
+		if arg-1 is "disband":
+			if {FAC::players::%player%.faction} isn't "wilder":
+				set {_F} to {FAC::players::%player%.faction} #que faction es
+				if {FAC::factions::%{_F}%::owner} is player:		
+					if {FAC::factions::%{_F}%::dtr.freeze} isn't greater than now:
+						#break the ally
+						if {FAC::factions::%{_F}%::ally.activa} is true:
+							set {_ally} to {FAC::factions::%{_F}%::ally}
+							make player execute "f neutral %{_ally}%"				
+						loop {FAC::factions::%{_F}%::players::*}:
+							set {FAC::players::%loop-value%.faction} to "wilder" #Make him a wilder
+							set {FAC::players::%loop-value%.chat} to 1	#Force chat channel
+						loop {FAC::factions::%{_F}%::lands::*}:
+							delete {FAC::chunks::%loop-value%}
+							delete {FAC::chunks::%loop-value%.%{_F}%}	
+						delete {FAC::factions::%{_F}%::*}
+						delete {FAC::factions::%{_F}%}
+						delete {FAC::factions::%{_F}%::lands::*}
+						delete {FAC::factions::%{_F}%::mods::*}
+						PlayerFaction(player's location)
+						send "%{@Prefix}% Faction disbaned"
+					else:
+						send "%{@Prefix}% You can't disband with dtr freeze"	
+				else:
+					send "%{@Prefix}% You must be the owner of %{_F}%"
+			else:
+				send "%{@Prefix}% You must own a faction to use this command"
+				
+#/mod {player} [if the player is a mod, the command will remove the permission, else: the player will become a mod. Only the owner can use the command]				
+		if arg-1 is "mod":
+			if {FAC::players::%player%.faction} isn't "wilder":
+				set {_F} to {FAC::players::%player%.faction} #que faction es
+				if {FAC::factions::%{_F}%::owner} is player:
+					if arg-2 is set:
+						set {_l} to length of the arg-2
+						if {_l} is less than 4:
+							send "%{@Prefix}% The name must contain at least 3 characters"
+							stop	
+						if arg-2 is player:	
+							send "%{@Prefix}% You are a mod already!"	
+							stop
+						loop {FAC::factions::%{_F}%::players::*}:
+							if loop-value-1 is arg-2:
+								loop {FAC::factions::%{_F}%::mods::*}:
+									if loop-value-2 is arg-2:
+										delete {FAC::factions::%{_F}%::mods::%loop-value-1%}
+										send "%{@Prefix}% %arg-2% is no longer a MOD"
+										send "%{@Prefix}% You are no longer a MOD of %{_F}%" to loop-value-1
+										stop
+							set {FAC::factions::%{_F}%::mods::%loop-value-1%} to arg-2
+							send "%{@Prefix}% You are now a MOD of %{_F}%" to loop-value-1
+							send "%{@Prefix}% %arg-2% is now a MOD"
+							stop		
+						send "%{@Prefix}% %arg-2% is not a member of the faction"
+						stop
+					else:
+						send "%{@Prefix}% You need to specify a player"
+						stop
+				else:
+					send "%{@Prefix}% You must be the owner of %{_F}% to use this command"
+					stop
+			else:
+				send "%{@Prefix}% You must own a faction to use this command"
+				stop
+
+				
+# /F  kick {FACTION.MEMBER}  [KICK A FACTION MEMBER]						
+		if arg-1 is "kick":	
+			if {FAC::players::%player%.faction} isn't  "wilder":			
+				set {_F} to {FAC::players::%player%.faction}
+				loop {FAC::factions::%{_F}%::mods::*}:
+					if loop-value is player:
+						set {_ismod} to true
+						if arg-2 is set:
+							if arg-2 is player:
+								send "%{@Prefix}% You can't kick your self from the faction"
+								send "%{@Prefix}% Use /F leave or /F disband"
+								stop
+							set {_l} to length of the arg-2
+							if {_l} is more than 16:
+								send "%{@Prefix}% The name must contain at least 3 characters"
+								stop
+							else:
+								if arg-2 parsed as player is online:
+									set {_p} to arg-2 parsed as player
+									if {FAC::factions::%{_F}%::players::%{_p}%} is set:
+										send "%{@Prefix}% %{_p}% was Kicked from %{_F}%"
+										delete {FAC::factions::%{_F}%::players::%{_p}%}
+										if {FAC::factions::%{_F}%::players::mods::%player%} is set:
+											delete {FAC::factions::%{_F}%::players::mods::%player%}
+										set {FAC::players::%{_p}%.faction} to "wilder"
+										set {FAC::factions::%{_F}%::dtr} to {FAC::factions::%{_F}%::dtr}-1
+										set {FAC::factions::%{_F}%::dtr.freeze} to now
+										add {@dtr-freeze} seconds to {FAC::factions::%{_F}%::dtr.freeze}
+										PlayerFaction(player's location)
+										stop
+									else:							
+										send "%{@Prefix}% %{_p}% does not belong to %{_F}%" 
+										stop
+								else:
+									send "%{@Prefix}% Player must be online to be kicked"
+									stop
+						else:
+							send "%{@Prefix}% You need to specify a player name"				
+							stop
+				if  {_ismod} isn't set:
+					send "%{@Prefix}% Only mods can kick players"
+					stop								
+			else:
+				send "%{@Prefix}% You don't belong to a faction"
+				
+				
+# /F  OWNER {FACTION.MEMBER}  [MAKES A FACTION MEMBER THE NEW OWNER OF THE FACTION]
+		if arg-1 is "owner":	
+			if {FAC::players::%player%.faction} isn't "wilder":	
+				set {_F} to {FAC::players::%player%.faction}
+				if {FAC::factions::%{_F}%::owner} is player:
+					if arg-2 is set:
+						set {_l} to length of the arg-2
+						if {_l} is more than 16:
+							send "%{@Prefix}% The name must have at least 3 characters"
+							stop
+						else:
+							if arg-2 parsed as player is online:
+								set {_P} to arg-2 parsed as player
+								if {FAC::players::%{_P}%.faction} is {_F}:
+									set {FAC::factions::%{_F}%::owner} to {_P}
+									loop {FAC::factions::%{_F}%::players::*}:
+										send "%{@Prefix}% The owner of %{_F}% is now %{_P}% " to loop-value									
+									#remove player from the owner
+									delete {FAC::factions::%{_F}%::owner::%player%} 
+									send "%{@Prefix}% You are no longer a mod. You may ask %{_P}% to give you the mod range "
+								else:
+									send "%{@Prefix}% %{_P}% doesn't belong to this faction"
+					else:		
+						send "%{@Prefix}% You must specify a player name"				
+				else:		
+					send "%{@Prefix}% This command is only for the owner of the faction"
+			else:
+				send "%{@Prefix}% You must own a faction to use this command"
+				
+				
+# /F  NEUTRAL {FACTION}  [Propouse ally to another faction, if the arg ally uses the same command, the ally is made]
+		if arg-1 is "ally":		
+			if {FAC::players::%player%.faction} isn't  "wilder":	
+				set {_F} to {FAC::players::%player%.faction}
+				loop {FAC::factions::%{_F}%::mods::*}:
+					if loop-value is player:
+						set {_ismod} to true
+						if arg-2 is set:
+							set {_l} to length of the arg-2
+							if {_l} is more than 16:
+								send "%{@Prefix}% The name must contain at least 3 characters"
+								stop
+							else:
+								if {FAC::factions::%{_F}%::ally.activa} is true:
+									send "%{@Prefix}% You can only have 1 ally. Use /f neutral [faction] to break the alliance"
+									send "%{@Prefix}% Use /f show to see the ally name"
+									stop
+								loop {FAC::factions::*}:	
+									if loop-value-2 is arg-2:	
+										if {FAC::factions::%arg-2%} is set:									
+											if {FAC::factions::%arg-2%::ally} is {_F}:
+												set {FAC::factions::%arg-2%::ally.activa} to true
+												set {FAC::factions::%{_F}%::ally.activa} to true
+												set {FAC::factions::%{_F}%::ally} to "%arg-2%"
+												Broadcast "%{@Prefix}% %{FAC::players::%player%.faction}% allied with %{FAC::factions::%arg-2%}%"
+												PlayerFaction(player's location)
+												stop											
+											else:		
+												set {FAC::factions::%{_F}%::ally} to "%arg-2%"	
+												send "%{@Prefix}% Ally request was send to  %arg-2%"
+												#broadcast "%{FAC::factions::%arg-2%::players::*}%"
+												loop {FAC::factions::%arg-2%::players::*}:
+													send "%{@Prefix}% %{FAC::players::%player%.faction}% sent an ally request" to loop-value-3	
+												stop
+										else:
+											send "%{@Prefix}% There is no ally with that name"
+				if {_ismod} isn't set:
+					send "%{@Prefix}% Only mods can send ally request!"
+					stop		
+			else:
+				send "%{@Prefix}% You must specify a faction name"
+				stop
+					
+# /F  NEUTRAL {FACTION}  [CANCEL AN ALLIANCE]						
+		if arg-1 is "neutral":		
+			if {FAC::players::%player%.faction} isn't  "wilder":	
+				set {_F} to {FAC::players::%player%.faction}
+				loop {FAC::factions::%{_F}%::mods::*}:
+					if loop-value-1 is player:
+						set {_ismod} to true
+						if arg-2 is set:
+							set {_l} to length of the arg-2
+							if {_l} is more than 16:
+								send "%{@Prefix}% the name must contain at least 3 character"
+								stop
+							else:
+								if {FAC::factions::%{_F}%::ally.activa} isn't true:
+									send "%{@Prefix}% You must have an active ally to use this command"
+									stop
+								else:	
+									if {FAC::factions::%{_F}%::ally} is arg-2:
+										set {FAC::factions::%{_F}%::ally.activa} to false
+										set {FAC::factions::%arg-2%::ally.activa} to false
+										delete {FAC::factions::%{_F}%::ally} 
+										delete {FAC::factions::%arg-2%::ally}
+										PlayerFaction(player's location)
+										loop {FAC::factions::%arg-2%::players::*}:
+											send "%{@Prefix}% %{_F}% disbanded the ally" to loop-value-2
+											#DISABLE ALLY CHAT
+											set {FAC::players::%loop-value-2%.chat} to 1
+										loop {FAC::factions::%{_F}%::players::*}:
+											send "%{@Prefix}% %{_F}% disbanded the ally" to loop-value-2
+											#DISABLE ALLY CHAT
+											set {FAC::players::%loop-value-2%.chat} to 1
+										stop
+									else:
+										send "%{@Prefix}% You don't have an ally with ""%arg-2%"" "
+						else:
+							send "%{@Prefix}% You need to specify a faction, use /F show to see the ally name"
+							stop				
+					if {_ismod} isn't set:
+						send "%{@Prefix}% Only mods may cancel an ally pact!"
+						stop	
+					
+# /F C [CHANGE THE CHAT CHANNEL]					
+		if arg-1 is "c": 
+			if {FAC::players::%player%.faction} isn't "wilder":
+				if {FAC::players::%player%.chat} isn't set:
+					set {FAC::players::%player%.chat} to 1
+					stop
+				if {FAC::players::%player%.chat} is 1: #all
+					set {FAC::players::%player%.chat} to 2
+					send "%{@Prefix}% Faction Channel"
+					stop
+				if {FAC::players::%player%.chat} is 2: #fac
+					set {FAC::players::%player%.chat} to 3
+					send "%{@Prefix}% Ally Channel"
+					stop
+				if {FAC::players::%player%.chat} is 3: #ally
+					set {FAC::players::%player%.chat} to 1
+					send "%{@Prefix}% Global Channel"
+					stop
+			else:
+				send "%{@Prefix}% You must have a faction to use this command"
+				
+#CHECK PLAYER'S LOCATION AND NOTIFY IF HE ENTERS TO A CLAIMED LAND					
+every 10 tick:
+	loop all players:
+		set {_chunk} to chunk at loop-player's location
+		if {FAC::chunks::%{_chunk}%} is set:
+			if {FAC::players::%loop-player%.notificado_entrada} isn't set:
+				send "&cEntering &a%{FAC::chunks::%chunk at loop-player's location%.owner}%" to loop-player
+				set {FAC::players::%loop-player%.notificado_entrada} to true
+				set {FAC::players::%loop-player%.lastland} to {FAC::chunks::%chunk at loop-player's location%.owner}
+				delete {FAC::players::%loop-player%.notificado_salida}
+		else:
+			if {FAC::players::%loop-player%.notificado_salida} isn't set:
+				delete {FAC::players::%loop-player%.notificado_entrada}
+				if {FAC::players::%loop-player%.lastland} is set:
+					send "&cLeaving &a % {FAC::players::%loop-player%.lastland}%" to loop-player
+				set {FAC::players::%loop-player%.notificado_salida} to true
+	
+#UPDATE FACTION'S DTR
+every 1 second:
+	loop {FAC::factions::*}:
+		set {_F} to loop-value
+		set {_p} to 0	
+		if {FAC::factions::%{_F}%::dtr} is less than 0:
+			set {FAC::factions::%{_F}%::dtr.raideable} to true
+		else:
+			set {FAC::factions::%{_F}%::dtr.raideable} to false
+			
+every 1 minute:
+	loop {FAC::factions::*}:
+		set {_F} to loop-value
+		set {_p} to 0	
+		if {FAC::factions::%{_F}%::dtr.freeze} is set:
+			if {FAC::factions::%{_F}%::dtr.freeze} isn't greater than now:
+				set {_jugadores} to 0
+				loop {FAC::factions::%{_F}%::players::*}:
+					set {_jugadores} to {_jugadores}+1					
+				if {_jugadores} is more than 1:		
+					set {_maxfactiondtr} to ({_jugadores} - 1) * {@player-dtr} + {@solo-faction}
+					if {FAC::factions::%{_F}%::dtr} is less than {_maxfactiondtr}:
+						set {_adddtr} to {_jugadores}*{@minute-dtr}
+						set {FAC::factions::%{_F}%::dtr} to {FAC::factions::%{_F}%::dtr}+{_adddtr}
+						if {FAC::factions::%{_F}%::dtr} is greater than {_maxfactiondtr}:
+							set {FAC::factions::%{_F}%::dtr} to {_maxfactiondtr}
+				else:
+					set {_maxfactiondtr} to {@solo-faction}
+					if {FAC::factions::%{_F}%::dtr} is less than {_maxfactiondtr}:
+						set {_adddtr} to {_jugadores}*{@minute-dtr}
+						set {FAC::factions::%{_F}%::dtr} to {FAC::factions::%{_F}%::dtr}+{_adddtr}
+		else:
+			set {FAC::factions::%{_F}%::dtr.freeze} to true
+
+#CANCEL DAMAGE BETWEEN MEMBERS OF FACTION OR ALLY
+on damage of player:	
+	if {FAC::players::%attacker%.faction} is {FAC::players::%victim%.faction}:
+		send "&2%victim% es parte de tu faction" to attacker
+		cancel event
+		stop
+	set {_faca} to {FAC::players::%attacker%.faction}
+	set {_facv} to {FAC::players::%victim%.faction}
+	if {FAC::factions::%{_faca}%::ally} is {_facv}:
+		if {FAC::factions::%{_facv}%::ally} is {_faca}:
+			send "&d%victim% es parte de tu ally" to attacker
+			cancel event
+			stop
+
+#APPLY DTR FREEZE IF PLAYER HAS NO FACTION
+on death of player:
+	if {FAC::players::%player%.faction} isn't "wilder":	
+		set {_F} to {FAC::players::%victim%.faction}
+		set {FAC::factions::%{_F}%::dtr} to {FAC::factions::%{_F}%::dtr}-1
+		if {FAC::factions::%{_F}%::dtr} is less than -5.5:
+			set {FAC::factions::%{_F}%::dtr} to -5.5
+		set {FAC::factions::%{_F}%::dtr.freeze} to now
+		add 3600 seconds to {FAC::factions::%{_F}%::dtr.freeze}
+			
+#MAKE SURE PLAYER HAS A DEFAULT FACTION
+#UPDATE PLAYER'S TAG	
+on join:
+	if {FAC::players::%player%.faction} isn't set:
+		set {FAC::players::%player%.faction} to "wilder"
+	PlayerFaction(player's location)	
+		
+		
+#PROTECT BLOCK USE ON FACTIONS LAND		
+on right click:
+	set {_chunk} to chunk at event-block's location
+	loop {FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {FAC::chunks::%loop-value%.owner}
+			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				if {FAC::players::%player%.faction} isn't {_chunkowner}:
+					if event-block is a {@I}:
+						cancel event
+						send "%{@Prefix}% You can't do that!"
+						stop
+
+#PROTECT BLOCK DESTRUCTION ON FACTIONS LAND
+on left click:
+	set {_chunk} to chunk at event-block's location
+	loop {FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {FAC::chunks::%loop-value%.owner}
+			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				if {FAC::players::%player%.faction} isn't {_chunkowner}:
+					cancel event
+					send "&8[&9Forbidden HCF&8]&7 You can't do that!"
+					stop
+	
+#PROTECT PRESSURE PLATE
+on pressure plate:
+	set {_chunk} to chunk at event-block's location
+	loop {FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {FAC::chunks::%loop-value%.owner}
+			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				if {FAC::players::%player%.faction} isn't {_chunkowner}:
+					cancel event
+					send "&8[&9Forbidden HCF&8]&7 You can't do that!"
+					stop
+
+#FACTIONS CHAT									
+on chat:
+	if {FAC.chatsystem} is true:
+		if {FAC::players::%player%.chat} isn't set:
+			set {FAC::players::%player%.chat} to 1 #If the player's isnt set, force him to use global
+		#Get player's faction
+		set {_F} to {FAC::players::%player%.faction}
+		if {_F} is "wilder":
+			#Just to make sure, if a player is a wilder, he can't be in a faction chat.
+			set {_F} to "-"
+			set {FAC::players::%player%.chat} to 1
+		
+		# GLOBAL CHAT
+		if {FAC::players::%player%.chat} is 1:
+			# IF YOU NEED SOME VIP OR MOD PREFIX
+			# USE THIS SECTION
+			#
+			# if player has the permission "skript.chat.admin":
+				# cancel event
+				# broadcast "%{ADMIN}% &4%player%&9~: &c&l%message%"
+				# stop
+			# if player has the permission "skript.chat.mod":
+				# cancel event
+				# broadcast "%{MOD}%&9%player%: &3&l%message%"
+				# stop
+			# if player has the permission "skript.chat.somevip":
+				# cancel event
+				# broadcast "&6[&c%{_F}%&6]&2%player%&f: %message%"
+				# stop
+			# if player has the permission "vip.silver":
+				# cancel event
+				# broadcast "&6[&c%{_F}%&6]%{VIPSILVER}%&7%player%&f: %message%"
+				# stop
+			cancel event
+			broadcast "&6[&c%{_F}%&6]&a%player%&f: %message%"	
+			stop
+			
+		#FACTION CHAT
+		if {FAC::players::%player%.chat} is 2:
+			cancel event
+			loop {FAC::factions::%{_F}%::players::*}:
+				send "&f<&2%{_F}% &2%player%&f>: &a%message%" to loop-value
+					
+		# ALLY CHAT
+		if {FAC::players::%player%.chat} is 3:
+			if {FAC::factions::%{_F}%::ally.activa}:
+				set {_ally} to {FAC::factions::%{_F}%::ally}
+				cancel event
+				loop {FAC::factions::%{_ally}%::players::*}:
+					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to loop-value
+				loop {FAC::factions::%{_F}%::players::*}:
+					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to loop-value
+			else:
+				cancel event
+				loop {FAC::factions::%{_F}%::players::*}:
+					send "&f<&d%{_F}%&d%player%&f>: &d%message%" to loop-value
+				
+				
+				
+				
