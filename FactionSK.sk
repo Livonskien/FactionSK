@@ -74,7 +74,7 @@ options:
 	#Use chat system: true or false
 	C: true
 	#Prefix, yes with double quotes
-	Prefix: ""&6[&9Forbidden HCF&6]"" 
+	Prefix: ""&8[&9Forbidden HCF&8]"" 
 	#
 	# DTR STUFF
 	#
@@ -166,18 +166,18 @@ function fshow(F: text, p: player):
 	set {_maxlands} to {_players}*{@land-per-player}
 	if {_maxlands} is greater than {@faction-land-max}:
 		set {_maxlands} to {@faction-land-max}						
-	send "&6----------&cForbidden&9HCF&6----------" to {_p}
-	send "&eFaction: &f%{_F}%" to {_p}
-	send "&eOwner: &6%{_owner}%" to {_p}
-	send "&ePlayers: &2%{_online}% &f/ &c%{_offline}%" to {_p}
-	send "&eDTR: &2%{_icono}%&c%{_dtr}%&6 / &c%{_maxfactiondtr}%" to {_p}
-	send "&eFaction Home: &b%{_home}%" to {_p}		
-	send "&eLand: %{_lands}% / %{_maxlands}%" to {_p}
+	send "&6----------&9ForbiddenHCF&6----------" to {_p}
+	send "&9Faction: &b%{_F}%" to {_p}
+	send "&9Owner: &c%{_owner}%" to {_p}
+	send "&9Players: &b%{_online}% &7/ &b%{_offline}%" to {_p}
+	send "&9DTR: &2%{_icono}%&b%{_dtr}%&7 / &b%{_maxfactiondtr}%" to {_p}
+	send "&9Faction Home: &b%{_home}%" to {_p}		
+	send "&9Land: &b%{_lands}% &7/ &b%{_maxlands}%" to {_p}
 	if {_freeze} is "Yes":
-		send "&b&lDTR Freeze: &f%{_until}%" to {_p}
+		send "&9DTR Freeze: &b%{_until}%" to {_p}
 	else:
-		send "&b&lDTR Freeze: &f%{_freeze}%" to {_p}
-	send "&bPlayers: &f%{_jugadoresonline}%" to {_p}
+		send "&9DTR Freeze: &b%{_freeze}%" to {_p}
+	send "&9Players: &2%{_jugadoresonline}%" to {_p}
 	send "&6--------------------------------" to {_p}
 	
 command clear-factions:
@@ -192,17 +192,17 @@ command f [<text>] [<text>]:
 	trigger:
 		if arg-1 is "create":
 			if {FAC::players::%player%.faction} isn't "wilder":
-				send "%{@Prefix}% You are alredy in a faction"
+				send "%{@Prefix}%&7 You are alredy in a faction"
 				stop
 			else:	
 				if arg-2 is set:
 					set {_l} to length of the arg-2
 					if {_l} is less than 4:
-						send "%{@Prefix}% The faction name needs at leat 3 characters"
+						send "%{@Prefix}%&7 The faction name needs at leat 3 characters"
 						stop
 					else:
 						if {FAC::factions::%arg-2%} is set:
-							send "%{@Prefix}% There is a faction named: %arg-2%"
+							send "%{@Prefix}%&7 There is a faction named: &c%arg-2%"
 							stop
 						else:
 							set {FAC::factions::%arg-2%} to arg-2 #creo la fction
@@ -1032,7 +1032,3 @@ on chat:
 				cancel event
 				loop {FAC::factions::%{_F}%::players::*}:
 					send "&f<&d%{_F}%&d%player%&f>: &d%message%" to loop-value
-				
-				
-				
-				
