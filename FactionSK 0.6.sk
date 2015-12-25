@@ -65,6 +65,11 @@
 # faction-land-max: 36
 # How much land a faction gets per member
 # land-per-player: 6
+# 0.6b
+# - fixed disband
+# - fixed claim around enemy
+# - added /f map , the code is pretty bad for the "icons"
+
 
 
 options:
@@ -616,8 +621,8 @@ command f [<text>] [<text>]:
 							set {FAC::players::%loop-value%.faction} to "wilder" #Make him a wilder
 							set {FAC::players::%loop-value%.chat} to 1	#Force chat channel
 						loop {FAC::factions::%{_F}%::lands::*}:
+							delete {FAC::chunks::%loop-value%.owner}	
 							delete {FAC::chunks::%loop-value%}
-							delete {FAC::chunks::%loop-value%.%{_F}%}	
 						delete {FAC::factions::%{_F}%::*}
 						delete {FAC::factions::%{_F}%}
 						delete {FAC::factions::%{_F}%::lands::*}
@@ -849,6 +854,177 @@ command f [<text>] [<text>]:
 					stop
 			else:
 				send "%{@Prefix}% You must have a faction to use this command"
+				
+				
+		if arg-1 is "map":		
+			set {_center} to player's location#location you want to loop the chunks around
+			set {_radius} to 4#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
+			set {_pos} to {_center}
+			set {_counter} to 1
+			loop 2 * {_radius} + 1 times:
+				set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
+				set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius}
+				loop 2 * {_radius} + 1 times:
+					set {_chunks::%{_counter}%} to chunk at {_pos}
+					add 1 to {_counter}
+					add 16 to x-coordinate of {_pos}
+			#comienzo  buscar enemigos
+			#broadcast "%{_chunks::*}%"
+			set {_cont} to 0
+			set {_l1} to ""
+			set {_l2} to ""
+			set {_l3} to ""
+			set {_l4} to ""
+			set {_l5} to ""
+			set {_l6} to ""
+			set {_l7} to ""
+			set {_l8} to ""
+			set {_l9} to ""
+			
+			set {_1} to "&8*"
+			set {_2} to "&8@"
+			set {_3} to "&8!"
+			set {_4} to "&8@"
+			set {_6} to "&8$"
+			set {_7} to "&8~"
+			set {_8} to "&8^"
+			set {_9} to "&8&"
+			loop {_chunks::*}:
+				if chunk at player's location is loop-value:
+					set {_ico} to "&b+&f"
+				else if {FAC::chunks::%loop-value%} is set:
+					set {_F} to {FAC::chunks::%loop-value%.owner}
+					if {_faction.%{_F}%.icon} isn't set:
+						if {_1.used} isn't set:
+							set {_ico} to {_1}
+							set {_1.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_1}		
+							
+						else if {_2.used} isn't set:
+							set {_ico} to {_2}
+							set {_2.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_2}		
+							
+						else if {_3.used} isn't set:
+							set {_ico} to {_3}
+							set {_2.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_3}
+							
+						else if {_4.used} isn't set:
+							set {_ico} to {_4}
+							set {_4.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_4}
+							
+						else if {_5.used} isn't set:
+							set {_ico} to {_5}
+							set {_5.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_5}
+							
+						else if {_6.used} isn't set:
+							set {_ico} to {_6}
+							set {_6.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_6}
+							
+						else if {_7.used} isn't set:
+							set {_ico} to {_7}
+							set {_7.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_7}
+							
+						else if {_8.used} isn't set:
+							set {_ico} to {_8}
+							set {_8.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_8}
+							
+						else if {_9.used} isn't set:
+							set {_ico} to {_9}
+							set {_9.used} to {_F}
+							set {_faction.%{_F}%.icon} to {_9}							
+					else:	
+						set {_ico} to {_faction.%{_F}%.icon}
+				else:
+					set {_ico} to "&7-"
+				if {_cont} is less than 9:					
+					set {_l1} to "%{_l1}% %{_ico}%"
+					add 1 to {_cont}
+				else if {_cont} is less than 18:
+					set {_l2} to "%{_l2}% %{_ico}%"
+					add 1 to {_cont}
+				else if {_cont} is less than 27:
+					set {_l3} to "%{_l3}% %{_ico}%"
+					add 1 to {_cont}
+				else if {_cont} is less than 36:
+					set {_l4} to "%{_l4}% %{_ico}%"
+					add 1 to {_cont}
+				else if {_cont} is less than 45:
+					set {_l5} to "%{_l5}% %{_ico}%"
+					add 1 to {_cont}
+				else if {_cont} is less than 54:
+					set {_l6} to "%{_l6}% %{_ico}%"
+					add 1 to {_cont}
+				else if {_cont} is less than 63:
+					set {_l7} to "%{_l7}% %{_ico}%"
+					add 1 to {_cont}
+				else if {_cont} is less than 72:
+					set {_l8} to "%{_l8}% %{_ico}%"
+					add 1 to {_cont}
+				else if {_cont} is less than 81:
+					set {_l9} to "%{_l9}% %{_ico}%"
+					add 1 to {_cont}
+					
+			set {_n} to "N"
+			set {_s} to "S"
+			set {_e} to "E"
+			set {_w} to "W"
+			if facing of player is north:
+				set {_n} to "&4N&6"
+			else if facing of player is south:
+				set {_s} to "&4S&6"
+			else if facing of player is west:
+				set {_w} to "&4W&6"
+			else if facing of player is east:
+				set {_e} to "&4E&6"
+			set {_owner} to "Land of: %{FAC::chunks::%chunk at player's location%.owner}%"
+			set {_encabezado} to "&6---------[&2%chunk at player's location%&6 %{_owner}% ]-----------"
+			replace "chunk" in {_encabezado} with ""
+			replace "<none>" in {_encabezado} with "nobody"
+			send "%{_encabezado}%"
+			send "%{_l1}%"
+			send "%{_l2}%"
+			send "%{_l3}%"
+			send "%{_l4}%    &6\%{_n}%/"
+			send "%{_l5}%    &6%{_w}%+%{_e}%"
+			send "%{_l6}%    &6/%{_s}%\"
+			send "%{_l7}%"
+			send "%{_l8}%"
+			send "%{_l9}%"
+			if {_1.used} is set:
+				set {_l10} to "&8%{_1}% &9%{_1.used}%"
+				
+			if {_2.used} is set:
+				set {_l10} to "%{_l10}% &f,%{_2}% &9%{_2.used}%"	
+
+			if {_3.used} is set:
+				set {_l10} to "%{_l10}% &f,%{_3}% &9%{_3.used}%"	
+
+			if {_4.used} is set:
+				set {_l10} to "%{_l10}% &f,%{_4}% &9%{_4.used}%"	
+
+			if {_5.used} is set:
+				set {_l10} to "%{_l10}% &f,%{_5}% &9%{_5.used}%"	
+
+			if {_6.used} is set:
+				set {_l10} to "%{_l10}% &f,%{_6}% &9%{_6.used}%"	
+
+			if {_7.used} is set:
+				set {_l10} to "%{_l10}% &f,%{_7}% &9%{_7.used}%"	
+
+			if {_8.used} is set:
+				set {_l10} to "%{_l10}% &f,%{_8}% &9%{_8.used}%"	
+
+			if {_9.used} is set:
+				set {_l10} to "%{_l10}% &f,%{_9}% &9%{_9.used}%"	
+			if {_l10} is set:
+				send "%{_l10}%"
 				
 #CHECK PLAYER'S LOCATION AND NOTIFY IF HE ENTERS TO A CLAIMED LAND					
 every 10 tick:
