@@ -79,8 +79,9 @@ options:
 	I: jungle door block or birch door block or dark oak door block or acacia door block or oak door block or acacia fence gate or birch fence gate or jungle fence gate or dark oak fence gate or oak fence gate or spruce fence gate or chest or enchantment table or furnace or brewing stand or trapped_chest or beacon or _lever or spruce door block or oak trapdoor or hopper or stone button or wooden button or dispenser or _anvil or trapped_chest
 	#Use chat system: true or false
 	C: true
-	#Prefix, yes with double quotes
-	Prefix: ""&8[&9Forbidden HCF&8]"" 
+	#Factions prefix, yes double quotes
+	Prefix: ""&6[&9Forbidden HCF&6]"" 
+	
 	#
 	# DTR STUFF
 	#
@@ -95,7 +96,7 @@ options:
 	#dtr freeze in seconds:
 	dtr-freeze: 3600
 	#you know..
-	kick-penalty: 1.0
+	kick-penalty: 0.51
 	#you know..
 	death-dtr: 1.0
 	#How much a faction wins per minute and per player
@@ -106,7 +107,7 @@ options:
 	faction-land-max: 36
 	# How much land a faction gets per member
 	land-per-player: 6
-
+	
 on script load:
 	loop {FAC::players::*}:
 		if {FAC::players::%loop-value%.faction} isn't set:
@@ -142,7 +143,6 @@ function fshow(F: text, p: player):
 			set {_maxfactiondtr} to {@solo-faction}
 	loop {FAC::factions::%{_F}%::players::*}:
 		set {_check} to player from uuid loop-value 
-		broadcast "%{_check}%"
 		if {_check} is online:					
 			set {_online} to {_online}+1
 		set {_offline} to {_offline}+1
@@ -173,10 +173,16 @@ function fshow(F: text, p: player):
 		set {_players} to {_players}+1 
 	set {_maxlands} to {_players}*{@land-per-player}
 	if {_maxlands} is greater than {@faction-land-max}:
-		set {_maxlands} to {@faction-land-max}						
+		set {_maxlands} to {@faction-land-max}		
+
+	if {FAC::factions::%{_F}%::ally.activa}:
+		set {_ally} to {FAC::factions::%{_F}%::ally}
+	else:
+		set {_ally} to "None"
+		
 	send "&6----------&9ForbiddenHCF&6----------" to {_p}
-	send "&9Faction: &b%{_F}%" to {_p}
-	send "&9Owner: &b%{_owner}%" to {_p}
+	send "&9Faction: &b%{_F}%   &9Owner: &c%{_owner}%" to {_p}
+	#send "" to {_p}
 	send "&9Players: &a%{_online}% &8/ &c%{_offline}%" to {_p}
 	send "&9DTR: &2%{_icono}%&a%{_dtr}%&8 / &c%{_maxfactiondtr}%" to {_p}
 	send "&9Faction Home: &b%{_home}%" to {_p}		
@@ -185,8 +191,11 @@ function fshow(F: text, p: player):
 		send "&9DTR Freeze: &b%{_until}%" to {_p}
 	else:
 		send "&9&lDTR Freeze: &b%{_freeze}%" to {_p}
+	send "&9Ally: &b%{_ally}%" to {_p}
 	send "&9Players: &2%{_jugadoresonline}%" to {_p}
 	send "&6--------------------------------" to {_p}
+	
+	
 	
 command clear-factions:
 	trigger:
@@ -433,6 +442,7 @@ command f [<text>] [<text>]:
 											add the chunk at the player's location to {FAC::factions::%{_F}%::lands::%chunk at player's location%} #chunks de una factions
 											set {FAC::factions::%{_F}%::lands::%chunk at player's location%} to chunk at player's location
 											send "%{@Prefix}% &7The land is now claimed by your faction!"
+											stop
 										else:
 											send "%{@Prefix}% &7The land must be contiguous to your lands"
 											stop
@@ -705,18 +715,18 @@ command f [<text>] [<text>]:
 #								if arg-2 parsed as player is online:
 								set {_p} to uuid of arg-2 parsed as a player
 								if {FAC::factions::%{_F}%::players::%{_p}%} is set:
-									send "%{@Prefix}% %{_p}% was Kicked from %{_F}%"
+									send "%{@Prefix}% %player from uuid {_p}% was Kicked from %{_F}%"
 									delete {FAC::factions::%{_F}%::players::%{_p}%}
 									if {FAC::factions::%{_F}%::players::mods::%player%} is set:
 										delete {FAC::factions::%{_F}%::players::mods::%{_p}%}
 									set {FAC::players::%{_p}%.faction} to "wilder"
 									set {FAC::factions::%{_F}%::dtr} to {FAC::factions::%{_F}%::dtr}-1
-									set {FAC::factions::%{_F}%::dtr.freeze} to now
-									add {@dtr-freeze} seconds to {FAC::factions::%{_F}%::dtr.freeze}
+									#set {FAC::factions::%{_F}%::dtr.freeze} to now
+									#add {@dtr-freeze} seconds to {FAC::factions::%{_F}%::dtr.freeze}
 									PlayerFaction(player's location)
 									stop
 								else:							
-									send "%{@Prefix}% %{_p}% does not belong to %{_F}%" 
+									send "%{@Prefix}% %player from uuid {_p}% does not belong to %{_F}%" 
 									stop
 							# else:
 									# send "%{@Prefix}% Player must be online to be kicked"
@@ -738,6 +748,9 @@ command f [<text>] [<text>]:
 				set {_F} to {FAC::players::%uuid of player%.faction}
 				if {FAC::factions::%{_F}%::owner} is uuid of player:
 					if arg-2 is set:
+						if arg-2 is player:
+							send "%{@Prefix}% &7You are the owner, silly!"
+							stop
 						set {_l} to length of the arg-2
 						if {_l} is more than 16:
 							send "%{@Prefix}% &7The name must have at least 3 characters"
@@ -748,12 +761,12 @@ command f [<text>] [<text>]:
 								if {FAC::players::%{_P}%.faction} is {_F}:
 									set {FAC::factions::%{_F}%::owner} to {_P}
 									loop {FAC::factions::%{_F}%::players::*}:
-										send "%{@Prefix}% &7The owner of &2%{_F}% &7is now &2%{_P}% " to player from uuid loop-value									
+										send "%{@Prefix}% &7The owner of &2%{_F}% &7is now &2%player from uuid {_P}% " to player from uuid loop-value									
 									#remove player from the owner
 									delete {FAC::factions::%{_F}%::owner::%uuid of player%} 
-									send "%{@Prefix}% &7You are no longer a mod. You may ask &2%{_P}% &7to give you the mod range "
+									send "%{@Prefix}% &7You are no longer a mod. You may ask &2%player from uuid {_P}% &7to give you the mod range "
 								else:
-									send "%{@Prefix}% &c%{_P}% &7doesn't belong to this faction"
+									send "%{@Prefix}% &c%player from uuid {_P}% &7doesn't belong to this faction"
 					else:		
 						send "%{@Prefix}% &7You must specify a player name"				
 				else:		
@@ -773,31 +786,37 @@ command f [<text>] [<text>]:
 							set {_l} to length of the arg-2
 							if {_l} is more than 16:
 								send "%{@Prefix}% &7The name must contain at least 3 characters"
-								stop
+								stop								
+							if arg-2 parsed as player is online:
+								set {_p} to uuid of arg-2 parsed as a player
+								set {_p} to {FAC::players::%{_p}%.faction}
+								broadcast "%{_p}%"
+								#send "ok %{_p}%"
 							else:
-								if {FAC::factions::%{_F}%::ally.activa} is true:
-									send "%{@Prefix}% &7You can only have 1 ally. Use &2/f neutral &6[&cfaction&6] &7to break the alliance"
-									send "%{@Prefix}% &7Use &2/f show &7to see the ally name"
-									stop
-								loop {FAC::factions::*}:	
-									if loop-value-2 is arg-2:	
-										if {FAC::factions::%arg-2%} is set:									
-											if {FAC::factions::%arg-2%::ally} is {_F}:
-												set {FAC::factions::%arg-2%::ally.activa} to true
-												set {FAC::factions::%{_F}%::ally.activa} to true
-												set {FAC::factions::%{_F}%::ally} to "%arg-2%"
-												Broadcast "%{@Prefix}% &c%{FAC::players::%uuid of player%.faction}% &6allied with &c%{FAC::factions::%arg-2%}%"
-												PlayerFaction(player's location)
-												stop											
-											else:		
-												set {FAC::factions::%{_F}%::ally} to "%arg-2%"	
-												send "%{@Prefix}% &7Ally request was send to &c%arg-2%"
-												#broadcast "%{FAC::factions::%arg-2%::players::*}%"
-												loop {FAC::factions::%arg-2%::players::*}:
-													send "%{@Prefix}% &c%{FAC::players::%uuid of player%.faction}% &7sent an ally request" to player from uuid loop-value-3	
-												stop
-										else:
-											send "%{@Prefix}% &7There is no ally with that name"
+								set {_p} to arg-2	
+							if {FAC::factions::%{_F}%::ally.activa} is true:
+								send "%{@Prefix}% &7You can only have 1 ally. Use &2/f neutral &6[&cfaction&6] &7to break the alliance"
+								send "%{@Prefix}% &7Use &2/f show &7to see the ally name"
+								stop
+							loop {FAC::factions::*}:	
+								if loop-value-2 is {_p}:	
+									if {FAC::factions::%{_p}%} is set:		
+										if {FAC::factions::%{_p}%::ally} is {_F}:
+											set {FAC::factions::%{_p}%::ally.activa} to true
+											set {FAC::factions::%{_F}%::ally.activa} to true
+											set {FAC::factions::%{_F}%::ally} to "%{_p}%"
+											Broadcast "%{@Prefix}% &c%{FAC::players::%uuid of player%.faction}% &6allied with &c%{FAC::factions::%{_p}%}%"
+											PlayerFaction(player's location)
+											stop											
+										else:		
+											set {FAC::factions::%{_F}%::ally} to "%{_p}%"	
+											send "%{@Prefix}% &7Ally request was send to &c%{_p}%"
+											#broadcast "%{FAC::factions::%arg-2%::players::*}%"
+											loop {FAC::factions::%{_p}%::players::*}:
+												send "%{@Prefix}% &c%{FAC::players::%uuid of player%.faction}% &7sent an ally request" to player from uuid loop-value-3	
+											stop
+							send "%{@Prefix}% &7There is no Faction with that name"
+							stop
 				if {_ismod} isn't set:
 					send "%{@Prefix}% &7Only mods can send ally request!"
 					stop		
@@ -847,7 +866,7 @@ command f [<text>] [<text>]:
 						stop	
 					
 # /F C [CHANGE THE CHAT CHANNEL]					
-		if arg-1 is "c": 
+		if arg-1 is "c" or "chat": 
 			if {FAC::players::%uuid of player%.faction} isn't "wilder":
 				if {FAC::players::%uuid of player%.chat} isn't set:
 					set {FAC::players::%uuid of player%.chat} to 1
@@ -1092,33 +1111,33 @@ every 1 minute:
 
 #CANCEL DAMAGE BETWEEN MEMBERS OF FACTION OR ALLY
 on damage of player:	
-	if {FAC::players::%attacker%.faction} is {FAC::players::%victim%.faction}:
-		send "&2%victim% es parte de tu faction" to attacker
+	if {FAC::players::%uuid of attacker%.faction} is {FAC::players::%uuid of victim%.faction}:
+		send "&%{@Prefix}% &2%victim% &7is part of your faction" to attacker
 		cancel event
 		stop
-	set {_faca} to {FAC::players::%attacker%.faction}
-	set {_facv} to {FAC::players::%victim%.faction}
+	set {_faca} to {FAC::players::%uuid of attacker%.faction}
+	set {_facv} to {FAC::players::%uuid of victim%.faction}
 	if {FAC::factions::%{_faca}%::ally} is {_facv}:
 		if {FAC::factions::%{_facv}%::ally} is {_faca}:
-			send "&d%victim% es parte de tu ally" to attacker
+			send "&%{@Prefix}% &d%victim% &7is part of your ally" to attacker
 			cancel event
 			stop
 
 #APPLY DTR FREEZE IF PLAYER HAS NO FACTION
 on death of player:
-	if {FAC::players::%player%.faction} isn't "wilder":	
-		set {_F} to {FAC::players::%victim%.faction}
+	if {FAC::players::%uuid of player%.faction} isn't "wilder":	
+		set {_F} to {FAC::players::%uuid of victim%.faction}
 		set {FAC::factions::%{_F}%::dtr} to {FAC::factions::%{_F}%::dtr}-1
 		if {FAC::factions::%{_F}%::dtr} is less than -5.5:
 			set {FAC::factions::%{_F}%::dtr} to -5.5
 		set {FAC::factions::%{_F}%::dtr.freeze} to now
-		add 3600 seconds to {FAC::factions::%{_F}%::dtr.freeze}
+		add {@dtr-freeze} seconds to {FAC::factions::%{_F}%::dtr.freeze}
 			
 #MAKE SURE PLAYER HAS A DEFAULT FACTION
 #UPDATE PLAYER'S TAG	
 on join:
-	if {FAC::players::%player%.faction} isn't set:
-		set {FAC::players::%player%.faction} to "wilder"
+	if {FAC::players::%uuid of player%.faction} isn't set:
+		set {FAC::players::%uuid of player%.faction} to "wilder"
 	PlayerFaction(player's location)	
 		
 		
@@ -1131,7 +1150,7 @@ on right click:
 			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
 				stop
 			else:
-				if {FAC::players::%player%.faction} isn't {_chunkowner}:
+				if {FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
 					if event-block is a {@I}:
 						cancel event
 						send "%{@Prefix}% You can't do that!"
@@ -1146,9 +1165,22 @@ on left click:
 			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
 				stop
 			else:
-				if {FAC::players::%player%.faction} isn't {_chunkowner}:
+				if {FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
 					cancel event
-					send "&8[&9Forbidden HCF&8]&7 You can't do that!"
+					send "%{@Prefix}%&7 You can't do that!"
+					stop
+					
+on place:
+	set {_chunk} to chunk at event-block's location
+	loop {FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {FAC::chunks::%loop-value%.owner}
+			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				if {FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
+					cancel event
+					send "%{@Prefix}% No puedes hacer eso aqui!"
 					stop
 	
 #PROTECT PRESSURE PLATE
@@ -1160,25 +1192,40 @@ on pressure plate:
 			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
 				stop
 			else:
-				if {FAC::players::%player%.faction} isn't {_chunkowner}:
+				if {FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
 					cancel event
-					send "&8[&9Forbidden HCF&8]&7 You can't do that!"
+					send "%{@Prefix}%&7 You can't do that!"
 					stop
 
+					
+on place:
+	set {_chunk} to chunk at event-block's location
+	loop {FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {FAC::chunks::%loop-value%.owner}
+			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				if {FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
+					cancel event
+					send "%{@Prefix}%&7 You can't do that!"
+					stop
+					
+					
 #FACTIONS CHAT									
 on chat:
 	if {FAC.chatsystem} is true:
-		if {FAC::players::%player%.chat} isn't set:
-			set {FAC::players::%player%.chat} to 1 #If the player's isnt set, force him to use global
+		if {FAC::players::%uuid of player%.chat} isn't set:
+			set {FAC::players::%uuid of player%.chat} to 1 #If the player's isnt set, force him to use global
 		#Get player's faction
-		set {_F} to {FAC::players::%player%.faction}
+		set {_F} to {FAC::players::%uuid of player%.faction}
 		if {_F} is "wilder":
 			#Just to make sure, if a player is a wilder, he can't be in a faction chat.
 			set {_F} to "-"
-			set {FAC::players::%player%.chat} to 1
+			set {FAC::players::%uuid of player%.chat} to 1
 		
 		# GLOBAL CHAT
-		if {FAC::players::%player%.chat} is 1:
+		if {FAC::players::%uuid of player%.chat} is 1:
 			# IF YOU NEED SOME VIP OR MOD PREFIX
 			# USE THIS SECTION
 			#
@@ -1203,21 +1250,21 @@ on chat:
 			stop
 			
 		#FACTION CHAT
-		if {FAC::players::%player%.chat} is 2:
+		if {FAC::players::%uuid of player%.chat} is 2:
 			cancel event
 			loop {FAC::factions::%{_F}%::players::*}:
-				send "&f<&2%{_F}% &2%player%&f>: &a%message%" to loop-value
+				send "&f<&2%{_F}% &2%player%&f>: &a%message%" to player from uuid loop-value loop-value
 					
 		# ALLY CHAT
-		if {FAC::players::%player%.chat} is 3:
+		if {FAC::players::%uuid of player%.chat} is 3:
 			if {FAC::factions::%{_F}%::ally.activa}:
 				set {_ally} to {FAC::factions::%{_F}%::ally}
 				cancel event
 				loop {FAC::factions::%{_ally}%::players::*}:
-					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to loop-value
+					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value loop-value
 				loop {FAC::factions::%{_F}%::players::*}:
-					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to loop-value
+					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value loop-value
 			else:
 				cancel event
 				loop {FAC::factions::%{_F}%::players::*}:
-					send "&f<&d%{_F}%&d%player%&f>: &d%message%" to loop-value
+					send "&f<&d%{_F}%&d%player%&f>: &d%message%" to player from uuid loop-value
