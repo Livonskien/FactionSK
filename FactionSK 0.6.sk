@@ -71,7 +71,8 @@
 # - fixed claim around enemy
 # - added /f map , the code is pretty bad for the "icons"
 # - UUID now rules this skript!
-
+# - On Place check
+# - other fixes, can't remember right now lol
 
 options:
 	#World where you can claim lands
