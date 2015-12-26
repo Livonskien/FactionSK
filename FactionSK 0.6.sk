@@ -721,6 +721,7 @@ command f [<text>] [<text>]:
 									if {FAC::factions::%{_F}%::players::mods::%player%} is set:
 										delete {FAC::factions::%{_F}%::players::mods::%{_p}%}
 									set {FAC::players::%{_p}%.faction} to "wilder"
+									set {FAC::players.%{_p}%.chat} to 1
 									set {FAC::factions::%{_F}%::dtr} to {FAC::factions::%{_F}%::dtr}-1
 									#set {FAC::factions::%{_F}%::dtr.freeze} to now
 									#add {@dtr-freeze} seconds to {FAC::factions::%{_F}%::dtr.freeze}
