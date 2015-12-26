@@ -28,7 +28,8 @@ command f-admin [<text>] [<text>] [<text>]:
 						send "Faction deleted"
 						stop
 				send "That faction does not exist"		
-				
+				stop
+
 		if arg-1 is "kick"
 			if arg-2 is set:
 				set {_p} to uuid of arg-2 parsed as a player
@@ -42,7 +43,8 @@ command f-admin [<text>] [<text>] [<text>]:
 					set {FAC::players.%{_p}%.chat} to 1
 				else:
 					send "%arg-2% is a wilder"
-					
+				
+
 		if arg-1 is "unclaim"
 			set {_chunk} to chunk at player's location
 			if {FAC::chunks::%chunk at player's location%} is set:
@@ -57,6 +59,7 @@ command f-admin [<text>] [<text>] [<text>]:
 				send "%{@Prefix}% &7Use this on a claimed land"
 				stop
 				
+
 		if arg-1 is "givedtr"
 			if arg-2 is set:
 				if arg-3 is set:				
@@ -70,7 +73,8 @@ command f-admin [<text>] [<text>] [<text>]:
 					stop
 				else:
 					send "Specify a faction"					
-					
+				
+
 		if arg-1 is "removedtr"
 			if arg-2 is set:
 				if arg-3 is set:				
@@ -85,6 +89,7 @@ command f-admin [<text>] [<text>] [<text>]:
 				else:
 					send "Specify a faction"
 				
+
 		if arg-1 is "stopfreeze"
 			if arg-2 is set:
 				loop {FAC::factions::*}:
@@ -98,6 +103,7 @@ command f-admin [<text>] [<text>] [<text>]:
 			else:
 				send "Specify a faction"
 				
+
 		if arg-1 is "addfreeze"
 			if arg-2 is set:
 				if arg-3 is set:
@@ -116,6 +122,7 @@ command f-admin [<text>] [<text>] [<text>]:
 				send "Specify a faction"
 				stop
 				
+
 		if arg-1 is "refreshtag":
 			loop all players:
 				set {_F} to {FAC::players::%uuid of loop-player%.faction}
@@ -131,3 +138,43 @@ command f-admin [<text>] [<text>] [<text>]:
 								make player from uuid loop-value-3 see loop-value-1's prefix as "&d"	
 				else:
 					make all players see loop-player's prefix as "&c"
+
+
+		if arg-1 is "warzone":
+			if arg-2 is set:
+				if arg-2 is an integer:
+					set {_center} to player's location#location you want to loop the chunks around
+					set {_radius} to arg-2#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
+					set {_pos} to {_center}
+					loop 2 * {_radius} + 1 times:
+						set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
+						set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
+						loop 2 * {_radius} + 1 times:
+							set {_chunks::%{_pos}%} to chunk at {_pos}
+							add 16 to z-coordinate of {_pos}
+					#comienzo  buscar enemigos
+					set {_enemigofound} to false
+					loop {_chunks::*}:
+						loop {FAC::factions::*}:
+							set {_enemigos} to loop-value-2
+							loop {FAC::factions::%loop-value-3%::lands::*}:
+								if loop-value-1 is loop-value-3:
+									send "%{@Prefix}% &7The chunk %loop-value-1% is claimed by %{_enemigos}%, use /f-admin unclaim"
+									send "this one won't be claimed as warzone"	
+								else:
+									set {FAC::chunks::%loop-value-1%} to loop-value-1
+									set {FAC::chunks::%loop-value-1%.owner} to "&4WarZone"
+									set {FAC::factions::&4WarZone::lands::%loop-value-1%} to loop-value-1
+				else:
+					send "To claim warzone with in a radius, you must specify a integer"
+					stop
+			else:
+				if {FAC::chunks::%chunk at player's location%} isn't set:
+					set {FAC::chunks::%chunk at player's location%} to %chunk at player's location%
+					set {FAC::chunks::%chunk at player's location%.owner} to "&4WarZone"
+					send "This chunk is now a warzone"
+					stop
+				else:
+					send "This chunk is claimed by %{FAC::chunks::%chunk at player's location%.owner}%"				
+		else:		stop
+
