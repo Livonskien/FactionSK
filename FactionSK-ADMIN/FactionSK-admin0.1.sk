@@ -167,7 +167,7 @@ command f-admin [<text>] [<text>] [<text>]:
 
 		if arg-1 is "unclaim":
 			if arg-2 is set:
-				if arg-2 is an integer:
+				if arg-3 is an integer:
 					set {_center} to player's location#location you want to loop the chunks around
 					set {_radius} to arg-2#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
 					set {_pos} to {_center}
