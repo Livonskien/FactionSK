@@ -1258,3 +1258,43 @@ on chat:
 				cancel event
 				loop {FAC::factions::%{_F}%::players::*}:
 					send "&f<&d%{_F}%&d%player%&f>: &d%message%" to player from uuid loop-value
+					
+					
+on command:
+	if full command is "f":
+		cancel event
+		send "&6--------------------------------------------"
+		send "&9                     Forbidden HCF"
+		send "&6--------------------------------------------"
+		send "&9/f create    &2&l>>  &7Crea faction"
+		send "&9/f show      &2&l>>  &7Informacion de la faction"
+		send "&9/f tag        &2&l>>  &7Cambia el nombre de la faction"
+		send "&9/f list         &2&l>>  &7Lista de factions"
+		send "&9/f sethome  &2&l>>  &7Crea home de la faction"
+		send " "
+		send "&6-----------&9/f 2 &7para mas comandos&6-----------"
+			
+	if full command is "f 2":		
+		cancel event
+		send "&6--------------------------------------------"
+		send "&9               Forbidden HCF"
+		send "&6--------------------------------------------"
+		send "&9/f home     &2&l>>  &7Teleport al home de la faction"
+		send "&9/f leave     &2&l>>  &7Sales de la faction"
+		send "&9/f invite     &2&l>>  &7Invita un jugador a la faction"
+		send "&9/f deinvite  &2&l>>  &7Cancela invitacion al jugador"
+		send "&9/f claim      &2&l>>  &7Reclama un chunk"
+		send " "
+		send "&6-----------&9/f 3 &7para mas comandos&6-----------"
+			
+	if full command is "f 3":		
+		cancel event
+		send "&6--------------------------------------------"
+		send "&9               Forbidden HCF"
+		send "&6--------------------------------------------"
+		send "&9/f unclaim  &2&l>>  &7Elimina territorio de faction"
+		send "&9/f kick       &2&l>>  &7Quita un jugador de la faction"
+		send "&9/f mod       &2&l>>  &7Da a un miembro rango de MOD"
+		send "&9/f chat      &2&l>> &7Cambias de chat"
+		send ""
+		send ""
