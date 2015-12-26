@@ -1,0 +1,117 @@
+command f-admin [<text>] [<text>] [<text>]:
+	trigger:
+		if arg-1 is "disband":
+			if arg-2 is set:
+				loop {FAC::factions::*}:
+					if loop-value is arg-2:
+						set {_F} to arg-2
+						if {FAC::factions::%{_F}%::ally.activa} is true:
+							set {_ally} to {FAC::factions::%{_F}%::ally}
+							delete {FAC::faction::%{_ally}%::ally.activa}
+							delete {FAC::faction::%{_ally}%::ally}
+							delete {FAC::faction::%{_F}%::ally.activa}
+							delete {FAC::faction::%{_F}%::ally}
+							make player execute "f neutral %{_ally}%"				
+						loop {FAC::factions::%{_F}%::players::*}:
+							send "Faction deleted by an admin" to player from uuid loop-value-2
+							set {FAC::players::%loop-value-2%.faction} to "wilder" #Make him a wilder
+							set {FAC::players::%loop-value-2%.chat} to 1	#Force chat channel
+						loop {FAC::factions::%{_F}%::lands::*}:
+							delete {FAC::chunks::%loop-value-2%.owner}	
+							delete {FAC::chunks::%loop-value-2%}
+						delete {FAC::factions::%{_F}%::*}
+						delete {FAC::factions::%{_F}%}
+						delete {FAC::factions::%{_F}%.owner}
+						delete {FAC::factions::%{_F}%::lands::*}
+						delete {FAC::factions::%{_F}%::mods::*}
+						delete {FAC::factions::%{_F}%::players::*}
+						send "Faction deleted"
+						stop
+				send "That faction does not exist"		
+				
+		if arg-1 is "kick"
+			if arg-2 is set:
+				set {_p} to uuid of arg-2 parsed as a player
+				if {FAC::players::%{_p}%.faction} isn't "wilder":
+					set {_F} to {FAC::players::%{_p}%.faction}
+					send "%{@Prefix}% %player from uuid {_p}% was Kicked from %{_F}%"
+					delete {FAC::factions::%{_F}%::players::%{_p}%}
+					if {FAC::factions::%{_F}%::players::mods::%player%} is set:
+						delete {FAC::factions::%{_F}%::players::mods::%{_p}%}
+					set {FAC::players::%{_p}%.faction} to "wilder"
+					set {FAC::players.%{_p}%.chat} to 1
+				else:
+					send "%arg-2% is a wilder"
+					
+		if arg-1 is "unclaim"
+			set {_chunk} to chunk at player's location
+			if {FAC::chunks::%chunk at player's location%} is set:
+				set {_F} to  {FAC::chunks::%chunk at player's location%.owner}
+				delete {FAC::chunks::%{_chunk}%}
+				delete {FAC::chunks::%{_F}%.%{_chunk}%}	
+				delete {FAC::factions::%{_F}%::lands::%{_chunk}%}
+				delete {FAC::chunks::%chunk at player's location%.owner}
+				send "%{@Prefix}% &7You unclaimed this chunk"
+				stop
+			else:
+				send "%{@Prefix}% &7Use this on a claimed land"
+				stop
+				
+		if arg-1 is "givedtr"
+			if arg-2 is set:
+				if arg-3 is set:				
+					loop {FAC::factions::*}:
+						if loop-value is arg-2:
+							set {_F} to arg-2
+							add arg-3 to {FAC::factions::%{_F}%::dtr}
+							send "Added %arg-3% dtr to %{_F}%"
+							stop
+					send "Faction not found"	
+					stop
+				else:
+					send "Specify a faction"					
+					
+		if arg-1 is "removedtr"
+			if arg-2 is set:
+				if arg-3 is set:				
+					loop {FAC::factions::*}:
+						if loop-value is arg-2:
+							set {_F} to arg-2
+							substract arg-3 from {FAC::factions::%{_F}%::dtr}
+							send "Removed %arg-3% dtr to %{_F}%"
+							stop
+					send "Faction not found"	
+					stop
+				else:
+					send "Specify a faction"
+				
+		if arg-1 is "stopfreeze"
+			if arg-2 is set:
+				loop {FAC::factions::*}:
+					if loop-value is arg-2:
+						set {_F} to arg-2
+						set {FAC::factions::%{_F}%::dtr.freeze} to false
+						send "Dtr freeze removed from faction %{_F}%"
+						stop
+				send "Faction not found"
+				stop
+			else:
+				send "Specify a faction"
+				
+		if arg-1 is "addfreeze"
+			if arg-2 is set:
+				if arg-3 is set:
+					loop {FAC::factions::*}:
+						if loop-value is arg-2:
+							set {_F} to arg-2
+							set {FAC::factions::%{_F}%::dtr.freeze} to false
+							add arg-3 seconds to {FAC::factions::%{_F}%::dtr.freeze}
+							stop
+					send "Faction not found"
+					stop					
+				else:	
+					send "Specify an amount"
+					stop
+			else:			
+				send "Specify a faction"
+				stop
