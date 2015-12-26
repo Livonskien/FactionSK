@@ -127,37 +127,46 @@ command f-admin [<text>] [<text>] [<text>]:
 					make all players see loop-player's prefix as "&c"
 
 command f-warzone [<integer>]:
-	permission: skript.factions.admin	
 	trigger:
 		if arg-1 is set:
-			if arg-1 is an integer:
-				set {_F} to "&4WarZone"
-				set {_center} to player's location#location you want to loop the chunks around
-				set {_radius} to arg-1#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
-				set {_pos} to {_center}
+			if arg-1 is more than 10:
+				send "trust me, this will explode, use a number lesser than 10 [160x160 blocks]"
+				stop
+			set {_F} to "&4WarZone"
+			set {_center} to player's location#location you want to loop the chunks around
+			set {_radius} to arg-1#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
+			set {_pos} to {_center}
+			loop 2 * {_radius} + 1 times:
+				set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
+				set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
 				loop 2 * {_radius} + 1 times:
-					set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
-					set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
-					loop 2 * {_radius} + 1 times:
-						set {_chunks::%{_pos}%} to chunk at {_pos}
-						add 16 to z-coordinate of {_pos}
-				#comienzo  buscar enemigos
-				set {_enemigofound} to false
-				loop {_chunks::*}:
+					set {_chunks::%{_pos}%} to chunk at {_pos}
+					add 16 to z-coordinate of {_pos}
+			#comienzo  buscar enemigos
+			set {_enemigofound} to false
+			loop {_chunks::*}:
+				send "Claiming..."
+				if {FAC::factions::*} is set:
 					loop {FAC::factions::*}:
 						set {_enemigos} to loop-value-2
 						loop {FAC::factions::%{_enemigos}%::lands::*}:
 							if loop-value-1 is loop-value-3:
 								send "&7The chunk %loop-value-1% is claimed by %{_enemigos}%, use /f-admin unclaim"
 								send "this one won't be claimed as warzone"
-								stop								
-						set {FAC::chunks::%loop-value-1%} to loop-value-1
-						set {FAC::chunks::%loop-value-1%.owner} to "&4WarZone"
-						if {FAC::factions::%{_F}%} isn't set:
-							set {FAC::factions::%{_F}%} to {_F}
-						set {FAC::factions::%{_F}%::lands::%loop-value-1%} to loop-value-1
-						send "claimed"
-				stop		
+							else:
+								set {FAC::chunks::%loop-value-1%} to loop-value-1
+								set {FAC::chunks::%loop-value-1%.owner} to "&4WarZone"
+								if {FAC::factions::%{_F}%} isn't set:
+									set {FAC::factions::%{_F}%} to {_F}
+								set {FAC::factions::%{_F}%::lands::%loop-value-1%} to loop-value-1
+				else:
+					set {FAC::chunks::%loop-value-1%} to loop-value-1
+					set {FAC::chunks::%loop-value-1%.owner} to "&4WarZone"
+					if {FAC::factions::%{_F}%} isn't set:
+						set {FAC::factions::%{_F}%} to {_F}
+					set {FAC::factions::%{_F}%::lands::%loop-value-1%} to loop-value-1
+				send "Claiming.."	
+			send "Done!"		
 		else:
 			if {FAC::chunks::%chunk at player's location%} isn't set:
 				set {FAC::chunks::%chunk at player's location%} to chunk at player's location
@@ -172,31 +181,29 @@ command f-wilderness [<integer>]:
 	permission: skript.factions.admin
 	trigger:
 		if arg-1 is set:
-			if arg-1 is an integer:
-				set {_center} to player's location#location you want to loop the chunks around
-				set {_radius} to arg-1#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
-				set {_pos} to {_center}
+			if arg-1 is more than 10:
+				send "trust me, this will explode, use a number lesser than 10"
+				stop
+			set {_center} to player's location#location you want to loop the chunks around
+			set {_radius} to arg-1#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
+			set {_pos} to {_center}
+			loop 2 * {_radius} + 1 times:
+				set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
+				set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
 				loop 2 * {_radius} + 1 times:
-					set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
-					set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
-					loop 2 * {_radius} + 1 times:
-						set {_chunks::%{_pos}%} to chunk at {_pos}
-						add 16 to z-coordinate of {_pos}
-				#comienzo  buscar enemigos
-				set {_enemigofound} to false
-				loop {_chunks::*}:
-					loop {FAC::factions::*}:
-						set {_enemigos} to loop-value-2
-						loop {FAC::factions::%{_enemigos}%::lands::*}:
-							if loop-value-1 is loop-value-3:
-								delete {FAC::factions::%{_enemigos}%::lands::%loop-value-1%}
-						delete {FAC::chunks::%loop-value-1%}
-						delete {FAC::chunks::%loop-value-1%.owner}		
-				send "All the chunks in a radius of %arg-1%, were deleted"				
-			else:
-				send "To claim warzone with in a radius, you must specify a integer"
-			stop
-
+					set {_chunks::%{_pos}%} to chunk at {_pos}
+					add 16 to z-coordinate of {_pos}
+			#comienzo  buscar enemigos
+			set {_enemigofound} to false
+			loop {_chunks::*}:
+				loop {FAC::factions::*}:
+					set {_enemigos} to loop-value-2
+					loop {FAC::factions::%{_enemigos}%::lands::*}:
+						if loop-value-1 is loop-value-3:
+							delete {FAC::factions::%{_enemigos}%::lands::%loop-value-1%}
+					delete {FAC::chunks::%loop-value-1%}
+					delete {FAC::chunks::%loop-value-1%.owner}		
+			send "All the chunks in a radius of %arg-1%, were deleted"				
 		else:
 			set {_chunk} to chunk at player's location
 			if {FAC::chunks::%chunk at player's location%} is set:
