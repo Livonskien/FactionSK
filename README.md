@@ -7,6 +7,6 @@ Dtr system, Raid System, Max lands, etc.
 
 Here is my mail, in case that you hae a suggestion:
 
-mailto:marianoz@vera.com.uy
+marianoz@vera.com.uy
 
 here the link to skunity: http://forums.skunity.com/t/factionsk-0-6b-umbaska-skquery-wildskript/2247/20
