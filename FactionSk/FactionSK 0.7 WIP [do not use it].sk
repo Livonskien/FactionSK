@@ -108,6 +108,8 @@ options:
 	faction-land-max: 36
 	# How much land a faction gets per member
 	land-per-player: 6
+	#should players be able to claim on WG regions?  false=no / true=yes
+	wgchek: false 
 	
 on script load:
 	loop {FAC::players::*}:
@@ -382,9 +384,8 @@ command f [<text>] [<text>]:
 								set {_lands} to {_lands}+1 								
 							if {_lands} is {_maxlands}:
 								send  "%{@Prefix}% &7You can't claim more lands, you may need more players or you reached the max amount of lands per factions"
-								stop
-							
-							if {FAC.checkregion} is true:
+								stop							
+							if {@wgchek} is false:
 								set {_region} to "%region at player%"
 								if {_region} isn't "<none>":
 									send  "%{@Prefix}% &7You can't claim on the &4warzone"
@@ -404,6 +405,9 @@ command f [<text>] [<text>]:
 									#comienzo  buscar enemigos
 									set {_enemigofound} to false
 									loop {_chunks::*}:
+										if {FAC::chunks::%loop-value-2%.owner} is "&4WarZone":
+											send "%{@Prefix}% &7This chunk is too close from the &4WarZone"
+											stop	
 										loop {FAC::factions::*}:
 											set {_enemigos} to loop-value-3
 											if {_enemigos} isn't {_F}:
@@ -1022,6 +1026,7 @@ command f [<text>] [<text>]:
 			set {_owner} to "Land of: %{FAC::chunks::%chunk at player's location%.owner}%"
 			set {_encabezado} to "&6---------[&2%chunk at player's location%&6 %{_owner}% ]-----------"
 			replace "chunk" in {_encabezado} with ""
+			replace "of %player's world%" in {_encabezado} with ""
 			replace "<none>" in {_encabezado} with "nobody"
 			send "%{_encabezado}%"
 			send "%{_l1}%"
