@@ -115,3 +115,19 @@ command f-admin [<text>] [<text>] [<text>]:
 			else:			
 				send "Specify a faction"
 				stop
+				
+		if arg-1 is "refreshtag":
+			loop all players:
+				set {_F} to {FAC::players::%uuid of loop-player%.faction}
+				#TAG FACTIONS
+				if {_F} isn't "wilder":		
+					make all players see loop-player-1's prefix as "&c" 	
+					loop {FAC::factions::%{_F}%::players::*}:
+						loop {FAC::factions::%{_F}%::players::*}:	
+							make player from uuid loop-value-2 see player from uuid loop-value-3's prefix as "&2"
+						if {FAC::factions::%{_F}%::ally.activa} is true:
+							set {_ally} to {FAC::factions::%{_F}%::ally}
+							loop {FAC::factions::%{_ally}%::players::*}:
+								make player from uuid loop-value-3 see loop-value-1's prefix as "&d"	
+				else:
+					make all players see loop-player's prefix as "&c"
