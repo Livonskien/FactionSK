@@ -1199,20 +1199,6 @@ on pressure plate:
 					stop
 
 					
-on place:
-	set {_chunk} to chunk at event-block's location
-	loop {FAC::chunks::*}:
-		if loop-value is {_chunk}:
-			set {_chunkowner} to {FAC::chunks::%loop-value%.owner}
-			if {FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
-				stop
-			else:
-				if {FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
-					cancel event
-					send "%{@Prefix}%&7 You can't do that!"
-					stop
-					
-					
 #FACTIONS CHAT									
 on chat:
 	if {FAC.chatsystem} is true:
