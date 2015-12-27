@@ -1237,14 +1237,16 @@ every 1 minute:
 					set {_maxfactiondtr} to ({_jugadores} - 1) * {@player-dtr} + {@solo-faction}
 					if {x_factions_FAC::factions::%{_F}%::dtr} is less than {_maxfactiondtr}:
 						set {_adddtr} to {_jugadores}*{@minute-dtr}
-						set {x_factions_FAC::factions::%{_F}%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}+{_adddtr}
-						if {x_factions_FAC::factions::%{_F}%::dtr} is greater than {_maxfactiondtr}:
-							set {x_factions_FAC::factions::%{_F}%::dtr} to {_maxfactiondtr}
+						set {x_factions_FAC::factions::%{_F}%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}+{_adddtr}							
+					else:
+						set {x_factions_FAC::factions::%{_F}%::dtr} to {_maxfactiondtr}
 				else:
 					set {_maxfactiondtr} to {@solo-faction}
 					if {x_factions_FAC::factions::%{_F}%::dtr} is less than {_maxfactiondtr}:
 						set {_adddtr} to {_jugadores}*{@minute-dtr}
 						set {x_factions_FAC::factions::%{_F}%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}+{_adddtr}
+					else:
+						set {x_factions_FAC::factions::%{_F}%::dtr} to {@solo-faction}
 		else:
 			set {x_factions_FAC::factions::%{_F}%::dtr.freeze} to true
 
@@ -1403,4 +1405,49 @@ on chat:
 				cancel event
 				loop {x_factions_FAC::factions::%{_F}%::players::*}:
 					send "&f<&d%{_F}%&d%player%&f>: &d%message%" to player from uuid loop-value
-					
+
+On Explode:
+	set {_chunk} to chunk at event-location
+	loop {x_factions_FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop		
+			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				cancel event
+				stop					
+
+on enderman pickup:
+	set {_chunk} to chunk at event-location
+	loop {x_factions_FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop		
+			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				cancel event
+				stop		
+
+				
+On zombie breaking a door:
+	set {_chunk} to chunk at event-location
+	loop {x_factions_FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop		
+			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				cancel event
+				stop		
