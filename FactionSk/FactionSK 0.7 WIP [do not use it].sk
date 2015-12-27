@@ -638,17 +638,65 @@ command f [<text>] [<text>]:
 
 #/f list [shows the factions list]				
 		if arg-1 is "list":	
-			if {x_factions_FAC::Factions::*} is set:			
-				loop {x_factions_FAC::Factions::*}:
-					send "%loop-value%"
-					#send "--------Faction list 1/2--------"
-					#send "pepe 5/10 online"
-					#send "caca 5/7 online"
-					#send "capo 3/20 online"
-					#send "..."
-					#send "usa /f list 2 para ver mas factions" 
-					#send "--------------------------------"
-			stop		
+			if {x_factions_FAC::factions::*} is set:			
+				set {_cont} to 0
+				loop {x_factions_FAC::factions::*}:
+					set {_cont} to {_cont}+1
+				if {_cont} is more than 8:				
+					set {_maxpag} to {_cont}/8
+					set {_maxpag} to ceil({_maxpag})
+				else:
+					set {_maxpag} to 1
+				if arg-2 is set:
+					set {_arg2} to arg-2 parsed as a number					
+					if {_arg2} is more than {_maxpag}:
+						set {_arg2} to {_maxpag}
+						set {_cont} to 1
+					set {_cont} to 1
+					send  "--------List %{_arg2}%/ %{_maxpag}%--------"
+					loop {x_factions_FAC::factions::*}:
+						if loop-value-1 isn't "&4WarZone":
+							set {_pag} to {_cont}/8
+							set {_pag} to ceil({_pag})			
+							if {_pag} is {_arg2}:
+								set {_F} to loop-value-1
+								set {_online} to 0
+								set {_offline} to 0
+								loop {x_factions_FAC::factions::%{_F}%::players::*}:
+									set {_check} to loop-value-2
+									set {_check} to player from uuid {_check}
+									if {_check} is online:					
+										set {_online} to {_online}+1
+									set {_offline} to {_offline}+1
+								send  "%{_F}% &a%{_online}%&8 /&c %{_offline}% "
+								set {_cont} to {_cont}+1
+							else:	
+								set {_cont} to {_cont}+1
+				else:	
+					set {_arg2} to 1
+					if {_arg2} is more than {_maxpag}:
+						set {_arg2} to {_maxpag}
+						set {_cont} to 1
+					set {_cont} to 1
+					send  "--------List %{_arg2}%/ %{_maxpag}%--------"
+					loop {x_factions_FAC::factions::*}:
+						if loop-value-1 isn't "&4WarZone":
+							set {_pag} to {_cont}/8
+							set {_pag} to ceil({_pag})			
+							if {_pag} is {_arg2}:
+								set {_F} to loop-value-1
+								set {_online} to 0
+								set {_offline} to 0
+								loop {x_factions_FAC::factions::%{_F}%::players::*}:
+									set {_check} to loop-value-2
+									set {_check} to player from uuid {_check}
+									if {_check} is online:					
+										set {_online} to {_online}+1
+									set {_offline} to {_offline}+1
+								send  "%{_F}% &a%{_online}%&8 /&c %{_offline}% "
+								set {_cont} to {_cont}+1
+							else:	
+								set {_cont} to {_cont}+1
 					
 #/f disband  [delete a faction]
 		if arg-1 is "disband":
