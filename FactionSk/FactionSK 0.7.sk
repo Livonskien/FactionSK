@@ -505,8 +505,10 @@ command f [<text>] [<text>]:
 									loop {x_factions_FAC::factions::%{_F}%::players::*}: 
 										set {_p} to loop-value-2
 										set {x_factions_FAC::factions::%arg-2%::players::%{_p}%} to {_p} 
-										#set {_p} to uuid of arg-2 parsed as player
-										set {x_factions_FAC::players::%{_p}%.faction} to arg-2									
+										set {x_factions_FAC::players::%{_p}%.faction} to arg-2		
+									loop {x_factions_FAC::factions::%{_F}%::mods::*}: 
+										set {_p} to loop-value-2
+										set {x_factions_FAC::factions::%arg-2%::mods::%{_p}%} to {_p} 
 									set {x_factions_FAC::factions::%arg-2%::dtr.raideable} to {x_factions_FAC::factions::%{_F}%::dtr.raideable}
 									set {x_factions_FAC::factions::%arg-2%::lands::*}	 to {x_factions_FAC::factions::%{_F}%::lands::*}		
 									set {x_factions_FAC::factions::%arg-2%::dtr.freeze} to {x_factions_FAC::factions::%{_F}%::dtr.freeze}
@@ -550,6 +552,7 @@ command f [<text>] [<text>]:
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
 				set {_F} to {x_factions_FAC::players::%uuid of player%.faction}
 				loop {x_factions_FAC::factions::%{_F}%::mods::*}:
+					broadcast "%loop-value-1%"
 					if loop-value-1 is uuid of player:
 						set {_ismod} to true
 						set {_chunk} to chunk at player's location
@@ -562,7 +565,7 @@ command f [<text>] [<text>]:
 						else:
 							send "%{@Prefix}% &7You can use this command only in your faction land"
 							stop
-				if  {_ismod} isn't set:
+				if {_ismod} isn't set:
 					send "%{@Prefix}% &7Only mods can claim lands"
 					stop			
 			else:
