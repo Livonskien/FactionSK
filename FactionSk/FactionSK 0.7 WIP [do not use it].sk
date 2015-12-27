@@ -73,6 +73,12 @@
 # - UUID now rules this skript!
 # - On Place check
 # - other fixes, can't remember right now lol
+#
+#0.7b
+# - new f list
+# - added tons of stops, to make to code faster, since it will stop asap
+# - added @wgcheck option, should a player be able to claim on a wg region?
+# - fixed a lot of shit, can't remember right now
 
 options:
 	#World where you can claim lands
@@ -240,7 +246,6 @@ command f [<text>] [<text>]:
 				else:
 					send "%{@Prefix}% &7The faction name can't be empty"
 					stop
-
 #/f invite {player} [invite a player to join your faction]					
 		if arg-1 is "invite":
 			if {x_factions_FAC::players::%uuid of player%.faction} is "wilder":
@@ -278,7 +283,7 @@ command f [<text>] [<text>]:
 					send "%{@Prefix}% &7Only mods can invite other players to the faction"
 					stop
 					
-					
+
 #/f deinvite {player} [cancel a player request ]					
 		if arg-1 is "deinvite":
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't set:
@@ -313,7 +318,7 @@ command f [<text>] [<text>]:
 				if {_ismod} isn't set:
 					send "%{@Prefix}% &7Only mods can invite other players to the faction"
 					stop
-					
+
 #/f join {factionname} or {request_sender} [join the player to a faction]					
 		if arg-1 is "join":
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
@@ -475,7 +480,7 @@ command f [<text>] [<text>]:
 				send "%{@Prefix}% &7You can't claim in this world"	
 				stop
 				
-				
+		
 #/f tag {text} [sets the new faction name]		
 		if arg-1 is "tag":	
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't  "wilder":
@@ -538,8 +543,8 @@ command f [<text>] [<text>]:
 				send "%{@Prefix}% &7This command is only for faction owners"
 				stop
 					
-					
-#/f sethome [set the faction's home ]				
+
+#/f sethome [set the faction's home ]				 
 		if arg-1 is "sethome":	
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
 				set {_F} to {x_factions_FAC::players::%uuid of player%.faction}
@@ -563,7 +568,7 @@ command f [<text>] [<text>]:
 				send "%{@Prefix}% &7You must own a faction to use this command"
 				stop
 			
-					
+				
 # /F  show  [leave the faction //owner can't leave if the faction isn't empty]	
 		if arg-1 is "show" or "who":
 			if arg-2 is set:
@@ -702,7 +707,7 @@ command f [<text>] [<text>]:
 			else:
 				send "There is not factions!"
 				stop
-					
+	
 #/f disband  [delete a faction]
 		if arg-1 is "disband":
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
@@ -738,7 +743,7 @@ command f [<text>] [<text>]:
 			else:
 				send "%{@Prefix}% &7You must own a faction to use this command"
 				stop
-				
+
 #/mod {player} [if the player is a mod, the command will remove the permission, else: the player will become a mod. Only the owner can use the command]				
 		if arg-1 is "mod":
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
@@ -777,7 +782,7 @@ command f [<text>] [<text>]:
 				send "%{@Prefix}% &7You must own a faction to use this command"
 				stop
 
-				
+
 # /F  kick {FACTION.MEMBER}  [KICK A FACTION MEMBER]						
 		if arg-1 is "kick":	
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't  "wilder":			
@@ -822,7 +827,7 @@ command f [<text>] [<text>]:
 				send "%{@Prefix}% &7You don't belong to a faction"
 				stop
 				
-				
+
 # /F  OWNER {FACTION.MEMBER}  [MAKES A FACTION MEMBER THE NEW OWNER OF THE FACTION]
 		if arg-1 is "owner":	
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":	
@@ -908,6 +913,7 @@ command f [<text>] [<text>]:
 				send "%{@Prefix}% &7You must specify a faction name"
 				stop
 					
+
 # /F  NEUTRAL {FACTION}  [CANCEL AN ALLIANCE]						
 		if arg-1 is "neutral":		
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't  "wilder":	
@@ -952,7 +958,8 @@ command f [<text>] [<text>]:
 			else:
 				send "%{@Prefix}% &7Only faction's mods can cancel an ally pact!"
 				stop
-					
+			
+
 # /F C [CHANGE THE CHAT CHANNEL]					
 		if arg-1 is "c" or "chat": 
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
@@ -976,7 +983,7 @@ command f [<text>] [<text>]:
 				stop
 				
 				
-				
+
 		if arg-1 is "map":		
 			set {_center} to player's location#location you want to loop the chunks around
 			set {_radius} to 4#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
@@ -1151,42 +1158,40 @@ command f [<text>] [<text>]:
 				send "%{_l10}%"
 			stop	
 			
-	if arg-1 isn't set:
-		send "&6--------------------------------------------"
-		send "&9                     Forbidden HCF"
-		send "&6--------------------------------------------"
-		send "&9/f create    &2&l>>  &7Crea faction"
-		send "&9/f show      &2&l>>  &7Informacion de la faction"
-		send "&9/f tag        &2&l>>  &7Cambia el nombre de la faction"
-		send "&9/f list         &2&l>>  &7Lista de factions"
-		send "&9/f sethome  &2&l>>  &7Crea home de la faction"
-		send " "
-		send "&6-----------&9/f 2 &7para mas comandos&6-----------"
-			
-	if arg-1 is "2":		
-		cancel event
-		send "&6--------------------------------------------"
-		send "&9               Forbidden HCF"
-		send "&6--------------------------------------------"
-		send "&9/f home     &2&l>>  &7Teleport al home de la faction"
-		send "&9/f leave     &2&l>>  &7Sales de la faction"
-		send "&9/f invite     &2&l>>  &7Invita un jugador a la faction"
-		send "&9/f deinvite  &2&l>>  &7Cancela invitacion al jugador"
-		send "&9/f claim      &2&l>>  &7Reclama un chunk"
-		send " "
-		send "&6-----------&9/f 3 &7para mas comandos&6-----------"
-			
-	if arg-1 is "3":
-		cancel event
-		send "&6--------------------------------------------"
-		send "&9               Forbidden HCF"
-		send "&6--------------------------------------------"
-		send "&9/f unclaim  &2&l>>  &7Elimina territorio de faction"
-		send "&9/f kick       &2&l>>  &7Quita un jugador de la faction"
-		send "&9/f mod       &2&l>>  &7Da a un miembro rango de MOD"
-		send "&9/f chat      &2&l>> &7Cambias de chat"
-		send ""
-		send ""
+		if arg-1 isn't "create" or "invite" or "deinvite" or "join" or "unclaim" or "claim" or "tag" or "sethome" or "show" or "who" or "home" or "leave" or "list" or "disband" or "mod" or "kick" or "owner" or "ally" or "neutral" or "c" or "chat " or "map":
+			send "&6--------------------------------------------"
+			send "&9                     Forbidden HCF"
+			send "&6--------------------------------------------"
+			send "&9/f create    &2&l>>  &7Crea faction"
+			send "&9/f show      &2&l>>  &7Informacion de la faction"
+			send "&9/f tag        &2&l>>  &7Cambia el nombre de la faction"
+			send "&9/f list         &2&l>>  &7Lista de factions"
+			send "&9/f sethome  &2&l>>  &7Crea home de la faction"
+			send " "
+			send "&6-----------&9/f 2 &7para mas comandos&6-----------"
+				
+		if arg-1 is "2":		
+			send "&6--------------------------------------------"
+			send "&9               Forbidden HCF"
+			send "&6--------------------------------------------"
+			send "&9/f home     &2&l>>  &7Teleport al home de la faction"
+			send "&9/f leave     &2&l>>  &7Sales de la faction"
+			send "&9/f invite     &2&l>>  &7Invita un jugador a la faction"
+			send "&9/f deinvite  &2&l>>  &7Cancela invitacion al jugador"
+			send "&9/f claim      &2&l>>  &7Reclama un chunk"
+			send " "
+			send "&6-----------&9/f 3 &7para mas comandos&6-----------"
+				
+		if arg-1 is "3":
+			send "&6--------------------------------------------"
+			send "&9               Forbidden HCF"
+			send "&6--------------------------------------------"
+			send "&9/f unclaim  &2&l>>  &7Elimina territorio de faction"
+			send "&9/f kick       &2&l>>  &7Quita un jugador de la faction"
+			send "&9/f mod       &2&l>>  &7Da a un miembro rango de MOD"
+			send "&9/f chat      &2&l>> &7Cambias de chat"
+			send ""
+			send ""
 				
 #CHECK PLAYER'S LOCATION AND NOTIFY IF HE ENTERS TO A CLAIMED LAND					
 every 10 tick:
@@ -1271,33 +1276,39 @@ on join:
 	PlayerFaction(player's location)	
 		
 		
-#PROTECT BLOCK USE ON FACTIONS LAND		
 on right click:
 	set {_chunk} to chunk at event-block's location
 	loop {x_factions_FAC::chunks::*}:
 		if loop-value is {_chunk}:
 			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop		
 			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
 				stop
 			else:
 				if {x_factions_FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
 					if event-block is a {@I}:
 						cancel event
-						send "%{@Prefix}% You can't do that!"
+						send "%{@Prefix}% You can't do that here!"
 						stop
-
-#PROTECT BLOCK DESTRUCTION ON FACTIONS LAND
+		
 on left click:
 	set {_chunk} to chunk at event-block's location
 	loop {x_factions_FAC::chunks::*}:
 		if loop-value is {_chunk}:
 			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop					
 			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
 				stop
 			else:
 				if {x_factions_FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
 					cancel event
-					send "%{@Prefix}%&7 You can't do that!"
+					send "%{@Prefix}%&7 You can't do that here!"
 					stop
 					
 on place:
@@ -1305,12 +1316,16 @@ on place:
 	loop {x_factions_FAC::chunks::*}:
 		if loop-value is {_chunk}:
 			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop		
 			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
 				stop
 			else:
 				if {x_factions_FAC::players::%uuid of player%.faction} isn't {_chunkowner}:
 					cancel event
-					send "%{@Prefix}% No puedes hacer eso aqui!"
+					send "%{@Prefix}%&7 You can't do that here!"
 					stop
 	
 #PROTECT PRESSURE PLATE
