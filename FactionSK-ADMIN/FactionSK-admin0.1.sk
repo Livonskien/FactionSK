@@ -36,6 +36,8 @@ command f-admin [<text>] [<text>] [<text>]:
 				set {_p} to uuid of arg-2 parsed as a player
 				if {x_factions_FAC::players::%{_p}%.faction} isn't "wilder":
 					set {_F} to {x_factions_FAC::players::%{_p}%.faction}
+					if {x_factions_FAC::factions::%{_F}%::owner} is {_p}:
+						send "Thans the owner, you can't kick him, use /f-admin disband"
 					send "%% %player from uuid {_p}% was Kicked from %{_F}%"
 					delete {x_factions_FAC::factions::%{_F}%::players::%{_p}%}
 					if {x_factions_FAC::factions::%{_F}%::players::mods::%player%} is set:
@@ -44,9 +46,7 @@ command f-admin [<text>] [<text>] [<text>]:
 					set {x_factions_FAC::players.%{_p}%.chat} to 1
 				else:
 					send "%arg-2% is a wilder"
-
-
-
+					
 		if arg-1 is "givedtr":
 			if arg-2 is set:
 				if arg-3 is set:				
