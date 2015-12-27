@@ -672,6 +672,7 @@ command f [<text>] [<text>]:
 								set {_cont} to {_cont}+1
 							else:	
 								set {_cont} to {_cont}+1
+					stop			
 				else:	
 					set {_arg2} to 1
 					if {_arg2} is more than {_maxpag}:
@@ -697,6 +698,10 @@ command f [<text>] [<text>]:
 								set {_cont} to {_cont}+1
 							else:	
 								set {_cont} to {_cont}+1
+					stop			
+			else:
+				send "There is not factions!"
+				stop
 					
 #/f disband  [delete a faction]
 		if arg-1 is "disband":
