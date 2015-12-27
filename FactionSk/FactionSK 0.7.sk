@@ -504,7 +504,7 @@ command f [<text>] [<text>]:
 									set {x_factions_FAC::factions::%arg-2%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}
 									loop {x_factions_FAC::factions::%{_F}%::players::*}: 
 										set {_p} to loop-value-2
-										set {x_factions_FAC::factions::%{_p}%::players::%{_p}%} to {_p} 
+										set {x_factions_FAC::factions::%arg-2%::players::%{_p}%} to {_p} 
 										#set {_p} to uuid of arg-2 parsed as player
 										set {x_factions_FAC::players::%{_p}%.faction} to arg-2									
 									set {x_factions_FAC::factions::%arg-2%::dtr.raideable} to {x_factions_FAC::factions::%{_F}%::dtr.raideable}
