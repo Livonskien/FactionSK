@@ -79,6 +79,7 @@
 # - added tons of stops, to make to code faster, since it will stop asap
 # - added @wgcheck option, should a player be able to claim on a wg region?
 # - fixed a lot of shit, can't remember right now
+# - "help" if the player use /f anyargument that is not listen, the command will display the help! [Translate it to your own language]
 
 options:
 	#World where you can claim lands
