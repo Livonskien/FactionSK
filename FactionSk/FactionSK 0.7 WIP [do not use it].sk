@@ -236,8 +236,10 @@ command f [<text>] [<text>]:
 							send "%{@Prefix}% &7Faction made: %arg-2%"
 							broadcast "%{@Prefix}% &c%player%&7 made the faction &c%arg-2%"
 							PlayerFaction(player's location)
+							stop
 				else:
 					send "%{@Prefix}% &7The faction name can't be empty"
+					stop
 
 #/f invite {player} [invite a player to join your faction]					
 		if arg-1 is "invite":
@@ -266,11 +268,15 @@ command f [<text>] [<text>]:
 										set {x_factions_FAC::players::%{_p}%.invitaciones::%{_F}%} to {_F} #guardo listado de que faction fue invitado
 										send "%{@Prefix}% &7You invited &c%arg-2% &7to join your faction"
 										stop
+								else:
+									send "%{@Prefix}% &7The player must be online"
+									stop
 						else:
 							send "%{@Prefix}% &7You must specify a player"
 							stop
 				if {_ismod} isn't set:
 					send "%{@Prefix}% &7Only mods can invite other players to the faction"
+					stop
 					
 					
 #/f deinvite {player} [cancel a player request ]					
@@ -298,12 +304,15 @@ command f [<text>] [<text>]:
 									else:	
 										send "%{@Prefix}%&c%{_p}% &7wasn't invited to your faction" to player
 										stop
+								else:
+									send "%{@Prefix}% &7The player must be online"
+									stop
 						else:
 							send "%{@Prefix}% &7You must specify a player"
 							stop
 				if {_ismod} isn't set:
 					send "%{@Prefix}% &7Only mods can invite other players to the faction"
-					
+					stop
 					
 #/f join {factionname} or {request_sender} [join the player to a faction]					
 		if arg-1 is "join":
@@ -320,7 +329,6 @@ command f [<text>] [<text>]:
 						if arg-2 parsed as player is online:
 							set {_p} to uuid of arg-2 parsed as player
 							set {_p} to {x_factions_FAC::players::%{_p}%.faction}
-							#send "ok %{_p}%"
 						else:
 							set {_p} to arg-2
 							
@@ -335,8 +343,10 @@ command f [<text>] [<text>]:
 							send "%{@Prefix}% &7You are now part of the faction" 
 							delete {x_factions_FAC::players::%uuid of player%.invitaciones::*} #elimino invitaciones pendientes del usuario
 							PlayerFaction(player's location)
+							stop
 				else:
-					broadcast "%{@Prefix}% &7You must specify a player name or a faction"					
+					send "%{@Prefix}% &7You must specify a player name or a faction"		
+					stop
 					
 #/f unclaim {deletes a faction chunk}		
 		if arg-1 is "unclaim":
@@ -365,6 +375,7 @@ command f [<text>] [<text>]:
 					stop				
 			else:
 				send "%{@Prefix}% &7You must have a faction to use this command "	
+				stop
 
 #/F CLAIM {claim a chunk if there is no enemy land aroud and if the chunk is contiguous to the one already claimed by the faction}	
 		if arg-1 is "claim":	
@@ -462,6 +473,7 @@ command f [<text>] [<text>]:
 					stop
 			else:
 				send "%{@Prefix}% &7You can't claim in this world"	
+				stop
 				
 				
 #/f tag {text} [sets the new faction name]		
@@ -515,12 +527,16 @@ command f [<text>] [<text>]:
 									delete {x_factions_FAC::factions::%{_F}%::*}	
 									delete {x_factions_FAC::factions::%{_F}%}
 									PlayerFaction(player's location)
+									stop
 					else:
 						send "%{@Prefix}% &7You need to specify a new name for %{_F}%"
+						stop
 				else:
 					send "%{@Prefix}% &7You must be the owner of %{_F}%  to use this command"
+					stop
 			else:
 				send "%{@Prefix}% &7This command is only for faction owners"
+				stop
 					
 					
 #/f sethome [set the faction's home ]				
@@ -545,6 +561,7 @@ command f [<text>] [<text>]:
 					stop			
 			else:
 				send "%{@Prefix}% &7You must own a faction to use this command"
+				stop
 			
 					
 # /F  show  [leave the faction //owner can't leave if the faction isn't empty]	
@@ -566,7 +583,7 @@ command f [<text>] [<text>]:
 								if {x_factions_FAC::players::%{_p}%.faction} isn't "wilder":
 									fshow({x_factions_FAC::players::%{_p}%.faction},player)
 									stop
-					send "&6[&2Wilderness&6]"
+					send "&6[&2Wilder&6]"
 					stop
 			else:
 				if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
@@ -574,7 +591,8 @@ command f [<text>] [<text>]:
 					fshow({_F},player)
 					stop
 				else:
-					send "&6[&2Wilderness&6]"					
+					send "&6[&2Wilder&6]"		
+					stop					
 
 #/f home [teleports you to the faction home]				
 		if arg-1 is "home":
@@ -584,8 +602,10 @@ command f [<text>] [<text>]:
 					teleport player to {x_factions_FAC::factions::%{_F}%::home}
 				else:
 					send "%{@Prefix}% &7There is no home set"
+					stop
 			else: 		
 				send "%{@Prefix}% &7You don't belong to a faction"
+				stop
 				
 # /F  leave  [leave the faction //owner can't leave if the faction isn't empty]		
 		if arg-1 is "leave":	
@@ -614,6 +634,7 @@ command f [<text>] [<text>]:
 					stop
 			else:
 				send "%{@Prefix}% &7You must be in a faction to use this command"
+				stop
 
 #/f list [shows the factions list]				
 		if arg-1 is "list":	
@@ -627,7 +648,7 @@ command f [<text>] [<text>]:
 					#send "..."
 					#send "usa /f list 2 para ver mas factions" 
 					#send "--------------------------------"
-					
+			stop		
 					
 #/f disband  [delete a faction]
 		if arg-1 is "disband":
@@ -654,12 +675,16 @@ command f [<text>] [<text>]:
 						
 						PlayerFaction(player's location)
 						broadcast "%{@Prefix}% &7The Faction %{_F}% was disbaned"
+						stop
 					else:
-						send "%{@Prefix}% &7You can't disband with dtr freeze"	
+						send "%{@Prefix}% &7You can't disband with dtr freeze"
+						stop						
 				else:
 					send "%{@Prefix}% &7You must be the owner of &2%{_F}%"
+					stop
 			else:
 				send "%{@Prefix}% &7You must own a faction to use this command"
+				stop
 				
 #/mod {player} [if the player is a mod, the command will remove the permission, else: the player will become a mod. Only the owner can use the command]				
 		if arg-1 is "mod":
@@ -734,10 +759,6 @@ command f [<text>] [<text>]:
 								else:							
 									send "%{@Prefix}% %player from uuid {_p}% does not belong to %{_F}%" 
 									stop
-							# else:
-									# send "%{@Prefix}% Player must be online to be kicked"
-									# stop
-									#esto esta mal capo se tiene q poder
 						else:
 							send "%{@Prefix}% &7You need to specify a player name"				
 							stop
@@ -746,6 +767,7 @@ command f [<text>] [<text>]:
 					stop								
 			else:
 				send "%{@Prefix}% &7You don't belong to a faction"
+				stop
 				
 				
 # /F  OWNER {FACTION.MEMBER}  [MAKES A FACTION MEMBER THE NEW OWNER OF THE FACTION]
@@ -771,14 +793,19 @@ command f [<text>] [<text>]:
 									#remove player from the owner
 									delete {x_factions_FAC::factions::%{_F}%::owner::%uuid of player%} 
 									send "%{@Prefix}% &7You are no longer a mod. You may ask &2%player from uuid {_P}% &7to give you the mod range "
+									stop
 								else:
 									send "%{@Prefix}% &c%player from uuid {_P}% &7doesn't belong to this faction"
+									stop
 					else:		
 						send "%{@Prefix}% &7You must specify a player name"				
+						stop
 				else:		
 					send "%{@Prefix}% &7This command is only for the owner of the faction"
+					stop
 			else:
 				send "%{@Prefix}% &7You must own a faction to use this command"
+				stop
 				
 				
 # /F  NEUTRAL {FACTION}  [Propouse ally to another faction, if the arg ally uses the same command, the ally is made]
@@ -796,8 +823,6 @@ command f [<text>] [<text>]:
 							if arg-2 parsed as player is online:
 								set {_p} to uuid of arg-2 parsed as a player
 								set {_p} to {x_factions_FAC::players::%{_p}%.faction}
-								broadcast "%{_p}%"
-								#send "ok %{_p}%"
 							else:
 								set {_p} to arg-2	
 							if {x_factions_FAC::factions::%{_F}%::ally.activa} is true:
@@ -864,12 +889,16 @@ command f [<text>] [<text>]:
 										stop
 									else:
 										send "%{@Prefix}% &7You don't have an ally with ""&c%arg-2%"" "
+										stop
 						else:
 							send "%{@Prefix}% &7You need to specify a faction, use &2/F show &7to see the ally name"
 							stop				
 					if {_ismod} isn't set:
 						send "%{@Prefix}% &7Only mods may cancel an ally pact!"
 						stop	
+			else:
+				send "%{@Prefix}% &7Only faction's mods can cancel an ally pact!"
+				stop
 					
 # /F C [CHANGE THE CHAT CHANNEL]					
 		if arg-1 is "c" or "chat": 
@@ -890,7 +919,8 @@ command f [<text>] [<text>]:
 					send "%{@Prefix}% &cGlobal Channel"
 					stop
 			else:
-				send "%{@Prefix}% &7You must have a faction to use this command"				
+				send "%{@Prefix}% &7You must have a faction to use this command"	
+				stop
 				
 				
 				
@@ -1066,6 +1096,44 @@ command f [<text>] [<text>]:
 				set {_l10} to "%{_l10}% &f,%{_9}% &9%{_9.used}%"	
 			if {_l10} is set:
 				send "%{_l10}%"
+			stop	
+			
+	if arg-1 isn't set:
+		send "&6--------------------------------------------"
+		send "&9                     Forbidden HCF"
+		send "&6--------------------------------------------"
+		send "&9/f create    &2&l>>  &7Crea faction"
+		send "&9/f show      &2&l>>  &7Informacion de la faction"
+		send "&9/f tag        &2&l>>  &7Cambia el nombre de la faction"
+		send "&9/f list         &2&l>>  &7Lista de factions"
+		send "&9/f sethome  &2&l>>  &7Crea home de la faction"
+		send " "
+		send "&6-----------&9/f 2 &7para mas comandos&6-----------"
+			
+	if arg-1 is "2":		
+		cancel event
+		send "&6--------------------------------------------"
+		send "&9               Forbidden HCF"
+		send "&6--------------------------------------------"
+		send "&9/f home     &2&l>>  &7Teleport al home de la faction"
+		send "&9/f leave     &2&l>>  &7Sales de la faction"
+		send "&9/f invite     &2&l>>  &7Invita un jugador a la faction"
+		send "&9/f deinvite  &2&l>>  &7Cancela invitacion al jugador"
+		send "&9/f claim      &2&l>>  &7Reclama un chunk"
+		send " "
+		send "&6-----------&9/f 3 &7para mas comandos&6-----------"
+			
+	if arg-1 is "3":
+		cancel event
+		send "&6--------------------------------------------"
+		send "&9               Forbidden HCF"
+		send "&6--------------------------------------------"
+		send "&9/f unclaim  &2&l>>  &7Elimina territorio de faction"
+		send "&9/f kick       &2&l>>  &7Quita un jugador de la faction"
+		send "&9/f mod       &2&l>>  &7Da a un miembro rango de MOD"
+		send "&9/f chat      &2&l>> &7Cambias de chat"
+		send ""
+		send ""
 				
 #CHECK PLAYER'S LOCATION AND NOTIFY IF HE ENTERS TO A CLAIMED LAND					
 every 10 tick:
@@ -1264,42 +1332,3 @@ on chat:
 				loop {x_factions_FAC::factions::%{_F}%::players::*}:
 					send "&f<&d%{_F}%&d%player%&f>: &d%message%" to player from uuid loop-value
 					
-					
-on command:
-	if full command is "f":
-		cancel event
-		send "&6--------------------------------------------"
-		send "&9                     Forbidden HCF"
-		send "&6--------------------------------------------"
-		send "&9/f create    &2&l>>  &7Crea faction"
-		send "&9/f show      &2&l>>  &7Informacion de la faction"
-		send "&9/f tag        &2&l>>  &7Cambia el nombre de la faction"
-		send "&9/f list         &2&l>>  &7Lista de factions"
-		send "&9/f sethome  &2&l>>  &7Crea home de la faction"
-		send " "
-		send "&6-----------&9/f 2 &7para mas comandos&6-----------"
-			
-	if full command is "f 2":		
-		cancel event
-		send "&6--------------------------------------------"
-		send "&9               Forbidden HCF"
-		send "&6--------------------------------------------"
-		send "&9/f home     &2&l>>  &7Teleport al home de la faction"
-		send "&9/f leave     &2&l>>  &7Sales de la faction"
-		send "&9/f invite     &2&l>>  &7Invita un jugador a la faction"
-		send "&9/f deinvite  &2&l>>  &7Cancela invitacion al jugador"
-		send "&9/f claim      &2&l>>  &7Reclama un chunk"
-		send " "
-		send "&6-----------&9/f 3 &7para mas comandos&6-----------"
-			
-	if full command is "f 3":		
-		cancel event
-		send "&6--------------------------------------------"
-		send "&9               Forbidden HCF"
-		send "&6--------------------------------------------"
-		send "&9/f unclaim  &2&l>>  &7Elimina territorio de faction"
-		send "&9/f kick       &2&l>>  &7Quita un jugador de la faction"
-		send "&9/f mod       &2&l>>  &7Da a un miembro rango de MOD"
-		send "&9/f chat      &2&l>> &7Cambias de chat"
-		send ""
-		send ""
