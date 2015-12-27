@@ -490,7 +490,7 @@ command f [<text>] [<text>]:
 					if arg-2 is set:
 						set {_l} to length of the arg-2
 						if {_l} is less than 4:
-							broadcast "The name needs at least 3 characters"
+							send  "%{@Prefix}% &cThe name needs at least 3 characters"
 							stop
 						else:
 							loop {x_factions_FAC::factions::*}:
@@ -552,7 +552,6 @@ command f [<text>] [<text>]:
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
 				set {_F} to {x_factions_FAC::players::%uuid of player%.faction}
 				loop {x_factions_FAC::factions::%{_F}%::mods::*}:
-					broadcast "%loop-value-1%"
 					if loop-value-1 is uuid of player:
 						set {_ismod} to true
 						set {_chunk} to chunk at player's location
@@ -578,7 +577,7 @@ command f [<text>] [<text>]:
 			if arg-2 is set:
 				set {_l} to length of the arg-2
 				if {_l} is less than 4:
-					broadcast "The name needs at least 3 characters"
+					send "%{@Prefix}% &cThe name needs at least 3 characters"
 					stop
 				else:				
 					loop {x_factions_FAC::factions::*}:
