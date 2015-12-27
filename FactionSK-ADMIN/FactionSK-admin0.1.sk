@@ -1,3 +1,6 @@
+options:
+	Prefix: ""&6[&9Forbidden HCF&6]"" 
+	
 command f-admin [<text>] [<text>] [<text>]:
 	permission: skript.faction.admin
 	trigger:
@@ -14,7 +17,7 @@ command f-admin [<text>] [<text>] [<text>]:
 							delete {x_factions_FAC::faction::%{_F}%::ally}
 							make player execute "f neutral %{_ally}%"				
 						loop {x_factions_FAC::factions::%{_F}%::players::*}:
-							send "Faction deleted by an admin" to player from uuid loop-value-2
+							send "%{@Prefix}% &8Faction deleted by an admin" to player from uuid loop-value-2
 							set {x_factions_FAC::players::%loop-value-2%.faction} to "wilder" #Make him a wilder
 							set {x_factions_FAC::players::%loop-value-2%.chat} to 1	#Force chat channel
 						loop {x_factions_FAC::factions::%{_F}%::lands::*}:
@@ -26,9 +29,9 @@ command f-admin [<text>] [<text>] [<text>]:
 						delete {x_factions_FAC::factions::%{_F}%::lands::*}
 						delete {x_factions_FAC::factions::%{_F}%::mods::*}
 						delete {x_factions_FAC::factions::%{_F}%::players::*}
-						send "Faction deleted"
+						send "%{@Prefix}% &8Faction deleted"
 						stop
-				send "That faction does not exist"		
+				send "%{@Prefix}% &8 That faction does not exist"		
 				stop
 
 		if arg-1 is "kick":
@@ -37,16 +40,16 @@ command f-admin [<text>] [<text>] [<text>]:
 				if {x_factions_FAC::players::%{_p}%.faction} isn't "wilder":
 					set {_F} to {x_factions_FAC::players::%{_p}%.faction}
 					if {x_factions_FAC::factions::%{_F}%::owner} is {_p}:
-						send "Thans the owner, you can't kick him, use /f-admin disband"
+						send "%{@Prefix}%&8 Thans the owner, you can't kick him, use /f-admin disband"
 						stop
-					send "%player from uuid {_p}% was Kicked from %{_F}%"
+					send "%{@Prefix}%&8 %player from uuid {_p}% was Kicked from %{_F}%"
 					delete {x_factions_FAC::factions::%{_F}%::players::%{_p}%}
 					if {x_factions_FAC::factions::%{_F}%::players::mods::%player%} is set:
 						delete {x_factions_FAC::factions::%{_F}%::players::mods::%{_p}%}
 					set {x_factions_FAC::players::%{_p}%.faction} to "wilder"
 					set {x_factions_FAC::players.%{_p}%.chat} to 1
 				else:
-					send "%arg-2% is a wilder"
+					send "%{@Prefix}%&8 %arg-2% is a wilder"
 
 		if arg-1 is "givedtr":
 			if arg-2 is set:
@@ -55,12 +58,12 @@ command f-admin [<text>] [<text>] [<text>]:
 						if loop-value is arg-2:
 							set {_F} to arg-2
 							set {x_factions_FAC::factions::%{_F}%::dtr} to  {x_factions_FAC::factions::%{_F}%::dtr}+3
-							send "Added %arg-3% dtr to %{_F}%"
+							send "%{@Prefix}% &8 Added %arg-3% dtr to %{_F}%"
 							stop
-					send "Faction not found"	
+					send "%{@Prefix}% &8Faction not found"	
 					stop
 				else:
-					send "Specify a faction"					
+					send "%{@Prefix}% &8 Specify a faction"					
 
 		if arg-1 is "removedtr":
 			if arg-2 is set:
@@ -69,12 +72,12 @@ command f-admin [<text>] [<text>] [<text>]:
 						if loop-value is arg-2:
 							set {_F} to arg-2
 							set {x_factions_FAC::factions::%{_F}%::dtr} to  {x_factions_FAC::factions::%{_F}%::dtr}-3
-							send "Removed %arg-3% dtr to %{_F}%"
+							send "%{@Prefix}% &8Removed %arg-3% dtr to %{_F}%"
 							stop
-					send "Faction not found"	
+					send "%{@Prefix}% &8Faction not found"	
 					stop
 				else:
-					send "Specify a faction"
+					send "%{@Prefix}% &8Specify a faction"
 
 		if arg-1 is "stopfreeze":
 			if arg-2 is set:
@@ -82,12 +85,12 @@ command f-admin [<text>] [<text>] [<text>]:
 					if loop-value is arg-2:
 						set {_F} to arg-2
 						set {x_factions_FAC::factions::%{_F}%::dtr.freeze} to false
-						send "Dtr freeze removed from faction %{_F}%"
+						send "%{@Prefix}% &8Dtr freeze removed from faction %{_F}%"
 						stop
-				send "Faction not found"
+				send "%{@Prefix}% &8Faction not found"
 				stop
 			else:
-				send "Specify a faction"
+				send "%{@Prefix}% &8Specify a faction"
 							
 
 		if arg-1 is "refreshtag":
@@ -105,6 +108,7 @@ command f-admin [<text>] [<text>] [<text>]:
 								make player from uuid loop-value-3 see loop-value-1's prefix as "&d"	
 				else:
 					make all players see loop-player's prefix as "&c"
+			send "%{@Prefix}% &8tags updated"		
 
 command f-warzone [<integer>]:
 	trigger:
@@ -126,7 +130,6 @@ command f-warzone [<integer>]:
 			set {_enemigofound} to false
 			set {_cont} to 0
 			loop {_chunks::*}:
-				send "Claiming..."
 				if {x_factions_FAC::chunks::%loop-value-1%} isn't set:
 					set {x_factions_FAC::chunks::%loop-value-1%} to loop-value-1
 					set {x_factions_FAC::chunks::%loop-value-1%.owner} to "&4WarZone"
@@ -135,27 +138,24 @@ command f-warzone [<integer>]:
 					set {x_factions_FAC::factions::%{_F}%::lands::%loop-value-1%} to loop-value-1
 				else:	
 					set {_owner} to {x_factions_FAC::chunks::%loop-value-1%.owner}
-					send "&7The chunk %loop-value-1% is claimed by %{_owner}%, use /f-admin unclaim"
-					send "this one won't be claimed as warzone"
-				send "Claiming.."	
-			send "Done!"		
+					send "%{@Prefix}% &7The chunk %loop-value-1% is claimed by %{_owner}%, use /f-admin unclaim"
+					send "%{@Prefix}% &8This one won't be claimed as warzone"
+			send "%{@Prefix}% &2Done!"		
+			stop
 		else:
 			if {x_factions_FAC::chunks::%chunk at player's location%} isn't set:
 				set {x_factions_FAC::chunks::%chunk at player's location%} to chunk at player's location
 				set {x_factions_FAC::chunks::%chunk at player's location%.owner} to "&4WarZone"
-				send "This chunk is now a warzone"
+				send "%{@Prefix}% &8This chunk is now a warzone"
 				stop
 			else:
-				send "This chunk is claimed by %{x_factions_FAC::chunks::%chunk at player's location%.owner}%"	
+				send "%{@Prefix}% &8This chunk is claimed by %{x_factions_FAC::chunks::%chunk at player's location%.owner}%"	
 				stop			
 
 command f-wilderness [<integer>]:	
 	permission: skript.factions.admin
 	trigger:
 		if arg-1 is set:
-			if arg-1 is more than 10:
-				send "trust me, this will explode, use a number lesser than 10"
-				stop
 			set {_center} to player's location#location you want to loop the chunks around
 			set {_radius} to arg-1#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
 			set {_pos} to {_center}
@@ -168,14 +168,14 @@ command f-wilderness [<integer>]:
 			#comienzo  buscar enemigos
 			set {_enemigofound} to false
 			loop {_chunks::*}:
-				loop {x_factions_FAC::factions::*}:
-					set {_enemigos} to loop-value-2
-					loop {x_factions_FAC::factions::%{_enemigos}%::lands::*}:
-						if loop-value-1 is loop-value-3:
-							delete {x_factions_FAC::factions::%{_enemigos}%::lands::%loop-value-1%}
+				if {x_factions_FAC::chunks::%loop-value-1%} is set:
+					set {_F} to  {x_factions_FAC::chunks::%loop-value-1%.owner}
 					delete {x_factions_FAC::chunks::%loop-value-1%}
-					delete {x_factions_FAC::chunks::%loop-value-1%.owner}		
-			send "All the chunks in a radius of %arg-1%, were deleted"				
+					delete {x_factions_FAC::chunks::%{_F}%.%loop-value-1%}	
+					delete {x_factions_FAC::factions::%{_F}%::lands::%loop-value-1%}
+					delete {x_factions_FAC::chunks::%loop-value-1%.owner}
+			send "%{@Prefix}% &8All the chunks in a radius of %arg-1%, were deleted"	
+			stop
 		else:
 			set {_chunk} to chunk at player's location
 			if {x_factions_FAC::chunks::%chunk at player's location%} is set:
@@ -184,8 +184,8 @@ command f-wilderness [<integer>]:
 				delete {x_factions_FAC::chunks::%{_F}%.%{_chunk}%}	
 				delete {x_factions_FAC::factions::%{_F}%::lands::%{_chunk}%}
 				delete {x_factions_FAC::chunks::%chunk at player's location%.owner}
-				send "%% &7You unclaimed this chunk"
+				send "%{@Prefix}% &8 You unclaimed this chunk"
 				stop
 			else:
-				send "%% &7Use this on a claimed land"
+				send "%{@Prefix}% &8Use this on a claimed land"
 				stop
