@@ -1162,6 +1162,18 @@ command f [<text>] [<text>]:
 				send "%{_l10}%"
 			stop	
 			
+		if arg-1 isn't set:		
+			send "&6--------------------------------------------"
+			send "&9                     Forbidden HCF"
+			send "&6--------------------------------------------"
+			send "&9/f create    &2&l>>  &7Crea faction"
+			send "&9/f show      &2&l>>  &7Informacion de la faction"
+			send "&9/f tag        &2&l>>  &7Cambia el nombre de la faction"
+			send "&9/f list         &2&l>>  &7Lista de factions"
+			send "&9/f sethome  &2&l>>  &7Crea home de la faction"
+			send " "
+			send "&6-----------&9/f 2 &7para mas comandos&6-----------"
+			
 		if arg-1 isn't "create" or "invite" or "deinvite" or "join" or "unclaim" or "claim" or "tag" or "sethome" or "show" or "who" or "home" or "leave" or "list" or "disband" or "mod" or "kick" or "owner" or "ally" or "neutral" or "c" or "chat " or "map":
 			send "&6--------------------------------------------"
 			send "&9                     Forbidden HCF"
