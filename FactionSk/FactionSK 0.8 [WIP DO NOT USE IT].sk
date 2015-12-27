@@ -504,9 +504,11 @@ command f [<text>] [<text>]:
 									set {x_factions_FAC::factions::%arg-2%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}
 									loop {x_factions_FAC::factions::%{_F}%::players::*}: 
 										set {_p} to loop-value-2
-										set {x_factions_FAC::factions::%{_p}%::players::%{_p}%} to {_p} 
-										#set {_p} to uuid of arg-2 parsed as player
-										set {x_factions_FAC::players::%{_p}%.faction} to arg-2									
+										set {x_factions_FAC::factions::%arg-2%::players::%{_p}%} to {_p} 
+										set {x_factions_FAC::players::%{_p}%.faction} to arg-2		
+									loop {x_factions_FAC::factions::%{_F}%::mods::*}: 
+										set {_p} to loop-value-2
+										set {x_factions_FAC::factions::%arg-2%::mods::%{_p}%} to {_p} 
 									set {x_factions_FAC::factions::%arg-2%::dtr.raideable} to {x_factions_FAC::factions::%{_F}%::dtr.raideable}
 									set {x_factions_FAC::factions::%arg-2%::lands::*}	 to {x_factions_FAC::factions::%{_F}%::lands::*}		
 									set {x_factions_FAC::factions::%arg-2%::dtr.freeze} to {x_factions_FAC::factions::%{_F}%::dtr.freeze}
@@ -550,6 +552,7 @@ command f [<text>] [<text>]:
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
 				set {_F} to {x_factions_FAC::players::%uuid of player%.faction}
 				loop {x_factions_FAC::factions::%{_F}%::mods::*}:
+					broadcast "%loop-value-1%"
 					if loop-value-1 is uuid of player:
 						set {_ismod} to true
 						set {_chunk} to chunk at player's location
@@ -562,7 +565,7 @@ command f [<text>] [<text>]:
 						else:
 							send "%{@Prefix}% &7You can use this command only in your faction land"
 							stop
-				if  {_ismod} isn't set:
+				if {_ismod} isn't set:
 					send "%{@Prefix}% &7Only mods can claim lands"
 					stop			
 			else:
@@ -1159,6 +1162,18 @@ command f [<text>] [<text>]:
 				send "%{_l10}%"
 			stop	
 			
+		if arg-1 isn't set:		
+			send "&6--------------------------------------------"
+			send "&9                     Forbidden HCF"
+			send "&6--------------------------------------------"
+			send "&9/f create    &2&l>>  &7Crea faction"
+			send "&9/f show      &2&l>>  &7Informacion de la faction"
+			send "&9/f tag        &2&l>>  &7Cambia el nombre de la faction"
+			send "&9/f list         &2&l>>  &7Lista de factions"
+			send "&9/f sethome  &2&l>>  &7Crea home de la faction"
+			send " "
+			send "&6-----------&9/f 2 &7para mas comandos&6-----------"
+			
 		if arg-1 isn't "create" or "invite" or "deinvite" or "join" or "unclaim" or "claim" or "tag" or "sethome" or "show" or "who" or "home" or "leave" or "list" or "disband" or "mod" or "kick" or "owner" or "ally" or "neutral" or "c" or "chat " or "map":
 			send "&6--------------------------------------------"
 			send "&9                     Forbidden HCF"
@@ -1193,8 +1208,11 @@ command f [<text>] [<text>]:
 			send "&9/f chat      &2&l>> &7Cambias de chat"
 			send ""
 			send ""
-				
-				
+			
+			
+options:
+	Prefix: ""&6[&9Forbidden HCF&6]"" 
+	
 command f-admin [<text>] [<text>] [<text>]:
 	permission: skript.faction.admin
 	trigger:
@@ -1384,7 +1402,6 @@ command f-wilderness [<integer>]:
 				send "%{@Prefix}% &8Use this on a claimed land"
 				stop
 				
-				
 #CHECK PLAYER'S LOCATION AND NOTIFY IF HE ENTERS TO A CLAIMED LAND					
 every 10 tick:
 	loop all players:
@@ -1425,14 +1442,16 @@ every 1 minute:
 					set {_maxfactiondtr} to ({_jugadores} - 1) * {@player-dtr} + {@solo-faction}
 					if {x_factions_FAC::factions::%{_F}%::dtr} is less than {_maxfactiondtr}:
 						set {_adddtr} to {_jugadores}*{@minute-dtr}
-						set {x_factions_FAC::factions::%{_F}%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}+{_adddtr}
-						if {x_factions_FAC::factions::%{_F}%::dtr} is greater than {_maxfactiondtr}:
-							set {x_factions_FAC::factions::%{_F}%::dtr} to {_maxfactiondtr}
+						set {x_factions_FAC::factions::%{_F}%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}+{_adddtr}							
+					else:
+						set {x_factions_FAC::factions::%{_F}%::dtr} to {_maxfactiondtr}
 				else:
 					set {_maxfactiondtr} to {@solo-faction}
 					if {x_factions_FAC::factions::%{_F}%::dtr} is less than {_maxfactiondtr}:
 						set {_adddtr} to {_jugadores}*{@minute-dtr}
 						set {x_factions_FAC::factions::%{_F}%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}+{_adddtr}
+					else:
+						set {x_factions_FAC::factions::%{_F}%::dtr} to {@solo-faction}
 		else:
 			set {x_factions_FAC::factions::%{_F}%::dtr.freeze} to true
 
@@ -1591,4 +1610,49 @@ on chat:
 				cancel event
 				loop {x_factions_FAC::factions::%{_F}%::players::*}:
 					send "&f<&d%{_F}%&d%player%&f>: &d%message%" to player from uuid loop-value
-					
+
+On Explode:
+	set {_chunk} to chunk at event-location
+	loop {x_factions_FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop		
+			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				cancel event
+				stop					
+
+on enderman pickup:
+	set {_chunk} to chunk at event-location
+	loop {x_factions_FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop		
+			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				cancel event
+				stop		
+
+				
+On zombie breaking a door:
+	set {_chunk} to chunk at event-location
+	loop {x_factions_FAC::chunks::*}:
+		if loop-value is {_chunk}:
+			set {_chunkowner} to {x_factions_FAC::chunks::%loop-value%.owner}
+			if  "%{_chunkowner}%" is "&4WarZone":
+				cancel event
+				send "%{@Prefix}%&7 You can't do that here!"
+				stop		
+			if {x_factions_FAC::factions::%{_chunkowner}%::dtr.raideable} is true:
+				stop
+			else:
+				cancel event
+				stop		
