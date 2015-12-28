@@ -94,12 +94,12 @@
 options:
 	#World where you can claim lands
 	W: "F" or "insert-another-world-if-you-need"
+	#
 	I: jungle door block or birch door block or dark oak door block or acacia door block or oak door block or acacia fence gate or birch fence gate or jungle fence gate or dark oak fence gate or oak fence gate or spruce fence gate or chest or enchantment table or furnace or brewing stand or trapped_chest or beacon or _lever or spruce door block or oak trapdoor or hopper or stone button or wooden button or dispenser or _anvil or trapped_chest
 	#Use chat system: true or false
-	C: true
+	ChatSystem: true
 	#Factions prefix, yes double quotes
-	Prefix: ""&6[&9Forbidden HCF&6]"" 
-	
+	Prefix: ""&6[&9Forbidden HCF&6]"" 	
 	#
 	# DTR STUFF
 	#
@@ -127,12 +127,15 @@ options:
 	land-per-player: 6
 	#should players be able to claim on WG regions?  false=no / true=yes
 	wgchek: false 
+	# DAMAGE
+	#set to true if you want firendly fire
+	ally-fire: false
+	faction-fire: false
 	
 on script load:
 	loop {x_factions_FAC::players::*}:
 		if {x_factions_FAC::players::%loop-value%.faction} isn't set:
 			set {x_factions_FAC::%loop-value%.faction} to "wilder"	
-	set {FAC.chatsystem} to {@C}
 	
 function PlayerFaction(l: location):
 	loop all players:
@@ -1521,17 +1524,19 @@ on damage of player:
 		if attacker is victim:
 			stop
 	if {x_factions_FAC::players::%uuid of attacker%.faction} isn't "wilder":	
-		if {x_factions_FAC::players::%uuid of attacker%.faction} is {x_factions_FAC::players::%uuid of victim%.faction}:
-			send "%{@Prefix}% &2%victim% &7is part of your faction" to attacker
-			cancel event
-			stop
-		set {_faca} to {x_factions_FAC::players::%uuid of attacker%.faction}
-		set {_facv} to {x_factions_FAC::players::%uuid of victim%.faction}
-		if {x_factions_FAC::factions::%{_faca}%::ally} is {_facv}:
-			if {x_factions_FAC::factions::%{_facv}%::ally} is {_faca}:
-				send "%{@Prefix}% &d%victim% &7is part of your ally" to attacker
+		if {@faction-fire} is false:
+			if {x_factions_FAC::players::%uuid of attacker%.faction} is {x_factions_FAC::players::%uuid of victim%.faction}:
+				send "%{@Prefix}% &2%victim% &7is part of your faction" to attacker
 				cancel event
 				stop
+		if {@ally-fire} is false:
+			set {_faca} to {x_factions_FAC::players::%uuid of attacker%.faction}
+			set {_facv} to {x_factions_FAC::players::%uuid of victim%.faction}
+			if {x_factions_FAC::factions::%{_faca}%::ally} is {_facv}:
+				if {x_factions_FAC::factions::%{_facv}%::ally} is {_faca}:
+					send "%{@Prefix}% &d%victim% &7is part of your ally" to attacker
+					cancel event
+					stop
 
 #APPLY DTR FREEZE IF PLAYER HAS NO FACTION
 on death of player:
@@ -1667,7 +1672,7 @@ On zombie breaking a door:
 
 #FACTIONS CHAT									
 on chat:
-	if {FAC.chatsystem} is true:
+	if {@ChatSystem} is true:
 		if {x_factions_FAC::players::%uuid of player%.chat} isn't set:
 			set {x_factions_FAC::players::%uuid of player%.chat} to 1 #If the player's isnt set, force him to use global
 		#Get player's faction
