@@ -127,6 +127,11 @@ options:
 	land-per-player: 6
 	#should players be able to claim on WG regions?  false=no / true=yes
 	wgchek: false 
+	#
+	# Dmage stuff
+	#set to false if you don't want friendly fire
+	ally-fire: false
+	faction-fire: false
 	
 on script load:
 	loop {x_factions_FAC::players::*}:
@@ -1486,17 +1491,20 @@ every 1 minute:
 
 #CANCEL DAMAGE BETWEEN MEMBERS OF FACTION OR ALLY
 on damage of player:	
-	if {x_factions_FAC::players::%uuid of attacker%.faction} is {x_factions_FAC::players::%uuid of victim%.faction}:
-		send "&%{@Prefix}% &2%victim% &7is part of your faction" to attacker
-		cancel event
-		stop
-	set {_faca} to {x_factions_FAC::players::%uuid of attacker%.faction}
-	set {_facv} to {x_factions_FAC::players::%uuid of victim%.faction}
-	if {x_factions_FAC::factions::%{_faca}%::ally} is {_facv}:
-		if {x_factions_FAC::factions::%{_facv}%::ally} is {_faca}:
-			send "&%{@Prefix}% &d%victim% &7is part of your ally" to attacker
-			cancel event
-			stop
+	if {x_factions_FAC::players::%uuid of attacker%.faction} isn't "wilder":	
+		if {@ally-fire} is false:
+			if {x_factions_FAC::players::%uuid of attacker%.faction} is {x_factions_FAC::players::%uuid of victim%.faction}:
+				send "&%{@Prefix}% &2%victim% &7is part of your faction" to attacker
+				cancel event
+				stop
+		if 	{@faction-fire} is false:
+			set {_faca} to {x_factions_FAC::players::%uuid of attacker%.faction}
+			set {_facv} to {x_factions_FAC::players::%uuid of victim%.faction}
+			if {x_factions_FAC::factions::%{_faca}%::ally} is {_facv}:
+				if {x_factions_FAC::factions::%{_facv}%::ally} is {_faca}:
+					send "&%{@Prefix}% &d%victim% &7is part of your ally" to attacker
+					cancel event
+					stop
 
 #APPLY DTR FREEZE IF PLAYER HAS NO FACTION
 on death of player:
