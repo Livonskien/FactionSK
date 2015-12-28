@@ -1,0 +1,52 @@
+This are the options that you can set on the skript.
+
+options:
+	#World where you can claim lands, just add more with or "newworld" or "another one"
+	W: "WorldName" or "Worldname_Nether"
+	#
+	#Don't touch this one, unless you know what are you doing
+	#
+	I: jungle door block or birch door block or dark oak door block or acacia door block or oak door block or acacia fence gate or birch fence gate or jungle fence gate or dark oak fence gate or oak fence gate or spruce fence gate or chest or enchantment table or furnace or brewing stand or trapped_chest or beacon or _lever or spruce door block or oak trapdoor or hopper or stone button or wooden button or dispenser or _anvil or trapped_chest
+	#
+	#
+	#Use chat system: true or false
+	ChatSystem: true
+	#
+	#
+	#Factions prefix, yes double quotes
+	Prefix: ""&6[&9Forbidden HCF&6]"" 	
+	#
+	# DTR STUFF
+	#
+	#the max amount of dtr a faction may have
+	max-dtr: 5.5
+	#the minimun amount of dtr
+	min-dtr: -5.5
+	#how much a player increments the max dtr of a faction
+	player-dtr: 0.51
+	#max dtr of a faction with 1 player
+	solo-faction: 1.01
+	#dtr freeze in seconds:
+	dtr-freeze: 3600
+	#you know..
+	kick-penalty: 0.51
+	#you know..
+	death-dtr: 1.0
+	#How much a faction wins per minute and per player
+	minute-dtr: 0.01
+	#
+	#LAND STUFF
+	#
+	faction-land-max: 36
+	# How much land a faction gets per member
+	land-per-player: 6
+	#should players be able to claim on WG regions?  false=no / true=yes
+	wgchek: false 
+	#
+	#
+	# DAMAGE
+	#
+	#
+	#set to true if you want firendly fire
+	ally-fire: false
+	faction-fire: false
