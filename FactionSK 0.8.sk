@@ -984,12 +984,11 @@ command f [<text>] [<text>]:
 			else:
 				send "%{@Prefix}% &7You must have a faction to use this command"	
 				stop
+#/F MAP				
 				
-				
-
 		if arg-1 is "map":		
 			set {_center} to player's location#location you want to loop the chunks around
-			set {_radius} to 4#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
+			set {_radius} to 4
 			set {_pos} to {_center}
 			set {_counter} to 1
 			if facing of player is north:
@@ -1024,6 +1023,7 @@ command f [<text>] [<text>]:
 						set {_chunks::%{_counter}%} to chunk at {_pos}
 						add 1 to {_counter}
 						add 16 to z-coordinate of {_pos}
+
 			#comienzo  buscar enemigos
 			#broadcast "%{_chunks::*}%"
 			set {_cont} to 0
