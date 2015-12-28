@@ -992,13 +992,38 @@ command f [<text>] [<text>]:
 			set {_radius} to 4#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
 			set {_pos} to {_center}
 			set {_counter} to 1
-			loop 2 * {_radius} + 1 times:
-				set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
-				set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius}
+			if facing of player is north:
 				loop 2 * {_radius} + 1 times:
-					set {_chunks::%{_counter}%} to chunk at {_pos}
-					add 1 to {_counter}
-					add 16 to x-coordinate of {_pos}
+					set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
+					set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius}
+					loop 2 * {_radius} + 1 times:
+						set {_chunks::%{_counter}%} to chunk at {_pos}
+						add 1 to {_counter}
+						add 16 to x-coordinate of {_pos}
+			else if facing of player is south:
+				loop 2 * {_radius} + 1 times:
+					set z-coordinate of {_pos} to z-coordinate of {_center} + 16 * {_radius} - (loop-number - 1) * 16
+					set x-coordinate of {_pos} to x-coordinate of {_center} + 16 * {_radius}
+					loop 2 * {_radius} + 1 times:
+						set {_chunks::%{_counter}%} to chunk at {_pos}
+						add 1 to {_counter}
+						add -16 to x-coordinate of {_pos}
+			else if facing of player is west:
+				loop 2 * {_radius} + 1 times:
+					set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
+					set z-coordinate of {_pos} to z-coordinate of {_center} + 16 * {_radius}
+					loop 2 * {_radius} + 1 times:
+						set {_chunks::%{_counter}%} to chunk at {_pos}
+						add 1 to {_counter}
+						add -16 to z-coordinate of {_pos}
+			else if facing of player is east:
+				loop 2 * {_radius} + 1 times:
+					set x-coordinate of {_pos} to x-coordinate of {_center} + 16 * {_radius} - (loop-number - 1) * 16
+					set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
+					loop 2 * {_radius} + 1 times:
+						set {_chunks::%{_counter}%} to chunk at {_pos}
+						add 1 to {_counter}
+						add 16 to z-coordinate of {_pos}
 			#comienzo  buscar enemigos
 			#broadcast "%{_chunks::*}%"
 			set {_cont} to 0
