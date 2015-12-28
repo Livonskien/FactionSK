@@ -157,7 +157,8 @@ function fshow(F: text, p: player):
 	set {_lands} to 0
 	set {_players} to 0	
 	loop {x_factions_FAC::factions::%{_F}%::players::*}:
-		set {_check} to player from uuid loop-value 
+		set {_check} to loop-value 
+		set {_check} to player from uuid {_check} 
 		if {_check} is online:					
 			set {_online} to {_online}+1
 			if {_jugadoresonline} isn't set:
