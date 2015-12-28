@@ -502,11 +502,11 @@ command f [<text>] [<text>]:
 								set {x_factions_FAC::factions::%arg-2%::owner}  to {x_factions_FAC::factions::%{_F}%::owner} 
 								set {x_factions_FAC::factions::%arg-2%::dtr} to {x_factions_FAC::factions::%{_F}%::dtr}
 								loop {x_factions_FAC::factions::%{_F}%::players::*}: 
-									set {_p} to loop-value-2
+									set {_p} to loop-value-1
 									set {x_factions_FAC::factions::%arg-2%::players::%{_p}%} to {_p} 
 									set {x_factions_FAC::players::%{_p}%.faction} to arg-2		
 								loop {x_factions_FAC::factions::%{_F}%::mods::*}: 
-									set {_p} to loop-value-2
+									set {_p} to loop-value-1
 									set {x_factions_FAC::factions::%arg-2%::mods::%{_p}%} to {_p} 
 								set {x_factions_FAC::factions::%arg-2%::dtr.raideable} to {x_factions_FAC::factions::%{_F}%::dtr.raideable}
 								set {x_factions_FAC::factions::%arg-2%::lands::*}	 to {x_factions_FAC::factions::%{_F}%::lands::*}		
@@ -525,11 +525,11 @@ command f [<text>] [<text>]:
 									
 							#Move the players to the new one	
 								loop {x_factions_FAC::factions::%arg-2%::players::*}:
-									send "%{@Prefix}% &7The name of the faction was changed to: &c%arg-2%" to player from uuid loop-value-2
+									send "%{@Prefix}% &7The name of the faction was changed to: &c%arg-2%" to player from uuid loop-value-1
 							#Loop value is a chunk		
 								loop {x_factions_FAC::factions::%arg-2%::lands::*}:
-									if {x_factions_FAC::chunks::%loop-value-2%.owner} is {_F}:
-										set {x_factions_FAC::chunks::%loop-value-2%.owner} to arg-2											
+									if {x_factions_FAC::chunks::%loop-value-1%.owner} is {_F}:
+										set {x_factions_FAC::chunks::%loop-value-1%.owner} to arg-2											
 							#Delete the old faction			
 								delete {x_factions_FAC::factions::%{_F}%::*}	
 								delete {x_factions_FAC::factions::%{_F}%}
@@ -556,7 +556,7 @@ command f [<text>] [<text>]:
 						set {x_factions_FAC::factions::%{_F}%::home} to player's location
 						send "%{@Prefix}% &7The Home was set"
 						loop {x_factions_FAC::factions::%{_F}%::players::*}:
-							send "%{@Prefix}% &7Now you can use &a/F home" to player from uuid loop-value-2
+							send "%{@Prefix}% &7Now you can use &a/F home" to player from uuid loop-value-1
 						stop	
 					else:
 						send "%{@Prefix}% &7You can use this command only in your faction land"
@@ -767,11 +767,11 @@ command f [<text>] [<text>]:
 							if {x_factions_FAC::factions::%{_F}%::mods::%{_p}%} is set:
 								delete {x_factions_FAC::factions::%{_F}%::mods::%{_p}%}
 								send "%{@Prefix}% &2%arg-2% &7is no longer a MOD"
-								send "%{@Prefix}% &7You are no longer a MOD of &2%{_F}%" to arg-2
+								send "%{@Prefix}% &7You are no longer a MOD of &2%{_F}%" to player from uuid {_p}
 								stop
 							else:	
 								set {x_factions_FAC::factions::%{_F}%::mods::%{_p}%} to {_p}
-								send "%{@Prefix}% &7You are now a MOD of &2%{_F}%" to arg-2
+								send "%{@Prefix}% &7You are now a MOD of &2%{_F}%" to player from uuid {_p}
 								send "%{@Prefix}% &2%arg-2% &7is now a MOD"
 								stop		
 						else:		
@@ -901,7 +901,7 @@ command f [<text>] [<text>]:
 									send "%{@Prefix}% &7Ally request was send to &c%{_p}%"
 									#broadcast "%{x_factions_FAC::factions::%arg-2%::players::*}%"
 									loop {x_factions_FAC::factions::%{_p}%::players::*}:
-										send "%{@Prefix}% &c%{x_factions_FAC::players::%uuid of player%.faction}% &7sent an ally request" to player from uuid loop-value-3	
+										send "%{@Prefix}% &c%{x_factions_FAC::players::%uuid of player%.faction}% &7sent an ally request" to player from uuid loop-value-1
 									stop
 						else:
 							send "%{@Prefix}% &7There is no Faction with that name"
@@ -936,13 +936,13 @@ command f [<text>] [<text>]:
 									delete {x_factions_FAC::factions::%arg-2%::ally}
 									PlayerFaction(player's location)
 									loop {x_factions_FAC::factions::%arg-2%::players::*}:
-										send "%{@Prefix}% &d%{_F}% &7disbanded the ally" to player from uuid loop-value-2
+										send "%{@Prefix}% &d%{_F}% &7disbanded the ally" to player from uuid loop-value-1
 										#DISABLE ALLY CHAT
-										set {x_factions_FAC::players::%loop-value-2%.chat} to 1
+										set {x_factions_FAC::players::%loop-value-1%.chat} to 1
 									loop {x_factions_FAC::factions::%{_F}%::players::*}:
-										send "%{@Prefix}% &d%{_F}% &7disbanded the ally" to player from uuid loop-value-2
+										send "%{@Prefix}% &d%{_F}% &7disbanded the ally" to player from uuid loop-value-1
 										#DISABLE ALLY CHAT
-										set {x_factions_FAC::players::%loop-value-2%.chat} to 1
+										set {x_factions_FAC::players::%loop-value-1%.chat} to 1
 									stop
 								else:
 									send "%{@Prefix}% &7You don't have an ally with ""&c%arg-2%"" "
@@ -1019,7 +1019,7 @@ command f [<text>] [<text>]:
 				if chunk at player's location is loop-value:
 					set {_ico} to "&b+&f"	
 				else if {x_factions_FAC::chunks::%loop-value%} is set:
-					if {x_factions_FAC::chunks::%loop-value%.owner} is "&4WarZone"
+					if {x_factions_FAC::chunks::%loop-value%.owner} is "&4WarZone":
 						set {_ico} to "&4+"
 					else: 	
 						set {_F} to {x_factions_FAC::chunks::%loop-value%.owner}
@@ -1222,12 +1222,12 @@ command f-admin [<text>] [<text>] [<text>]:
 						delete {x_factions_FAC::faction::%{_F}%::ally}
 						make player execute "f neutral %{_ally}%"				
 					loop {x_factions_FAC::factions::%{_F}%::players::*}:
-						send "%{@Prefix}% &8Faction deleted by an admin" to player from uuid loop-value-2
-						set {x_factions_FAC::players::%loop-value-2%.faction} to "wilder" #Make him a wilder
-						set {x_factions_FAC::players::%loop-value-2%.chat} to 1	#Force chat channel
+						send "%{@Prefix}% &8Faction deleted by an admin" to player from uuid loop-value-1
+						set {x_factions_FAC::players::%loop-value-1%.faction} to "wilder" #Make him a wilder
+						set {x_factions_FAC::players::%loop-value-1%.chat} to 1	#Force chat channel
 					loop {x_factions_FAC::factions::%{_F}%::lands::*}:
-						delete {x_factions_FAC::chunks::%loop-value-2%.owner}	
-						delete {x_factions_FAC::chunks::%loop-value-2%}
+						delete {x_factions_FAC::chunks::%loop-value-1%.owner}	
+						delete {x_factions_FAC::chunks::%loop-value-1%}
 					delete {x_factions_FAC::factions::%{_F}%::*}
 					delete {x_factions_FAC::factions::%{_F}%}
 					delete {x_factions_FAC::factions::%{_F}%.owner}
@@ -1632,7 +1632,7 @@ on chat:
 		if {x_factions_FAC::players::%uuid of player%.chat} is 2:
 			cancel event
 			loop {x_factions_FAC::factions::%{_F}%::players::*}:
-				send "&f<&2%{_F}% &2%player%&f>: &a%message%" to player from uuid loop-value loop-value
+				send "&f<&2%{_F}% &2%player%&f>: &a%message%" to player from uuid loop-value
 					
 		# ALLY CHAT
 		if {x_factions_FAC::players::%uuid of player%.chat} is 3:
@@ -1640,9 +1640,9 @@ on chat:
 				set {_ally} to {x_factions_FAC::factions::%{_F}%::ally}
 				cancel event
 				loop {x_factions_FAC::factions::%{_ally}%::players::*}:
-					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value loop-value
+					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value
 				loop {x_factions_FAC::factions::%{_F}%::players::*}:
-					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value loop-value
+					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value
 			else:
 				cancel event
 				loop {x_factions_FAC::factions::%{_F}%::players::*}:
