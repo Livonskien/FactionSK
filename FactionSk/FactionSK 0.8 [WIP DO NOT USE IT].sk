@@ -1623,10 +1623,6 @@ on chat:
 				# cancel event
 				# broadcast "&6[&c%{_F}%&6]&2%player%&f: %message%"
 				# stop
-			# if player has the permission "vip.silver":
-				# cancel event
-				# broadcast "&6[&c%{_F}%&6]%{VIPSILVER}%&7%player%&f: %message%"
-				# stop
 			cancel event
 			broadcast "&6[&c%{_F}%&6]&a%player%&f: %message%"	
 			stop
