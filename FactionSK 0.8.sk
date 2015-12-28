@@ -1516,6 +1516,10 @@ every 1 minute:
 
 #CANCEL DAMAGE BETWEEN MEMBERS OF FACTION OR ALLY
 on damage of player:	
+	#bypass damage by enderpearl
+	if damage was caused by fall:
+		if attacker is victim:
+			stop
 	if {x_factions_FAC::players::%uuid of attacker%.faction} isn't "wilder":	
 		if {x_factions_FAC::players::%uuid of attacker%.faction} is {x_factions_FAC::players::%uuid of victim%.faction}:
 			send "%{@Prefix}% &2%victim% &7is part of your faction" to attacker
