@@ -188,7 +188,7 @@ function fshow(F: text, p: player):
 		set {_icono} to ""
 	else:
 		set {_freeze} to "no"
-		set {_icono} to "&2?"
+		set {_icono} to "&2▲"
 
 	loop {x_factions_FAC::factions::%{_F}%::lands::*}:
 		set {_lands} to {_lands}+1
