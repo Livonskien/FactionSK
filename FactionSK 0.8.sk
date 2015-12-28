@@ -245,8 +245,8 @@ command f [<text>] [<text>]:
 							stop
 						else:
 							set {x_factions_FAC::factions::%arg-2%} to arg-2 #creo la fction
-							set {x_factions_FAC::factions::%arg-2%::owner} to uuid of player #dueño de la faction
-							set {x_factions_FAC::factions::%arg-2%::mods::%uuid of player%} to uuid of player #dueño de la faction
+							set {x_factions_FAC::factions::%arg-2%::owner} to uuid of player #due??e la faction
+							set {x_factions_FAC::factions::%arg-2%::mods::%uuid of player%} to uuid of player #due??e la faction
 							set {x_factions_FAC::factions::%arg-2%::dtr} to 0 #dtr de la faction
 							set {x_factions_FAC::factions::%arg-2%::players::%uuid of player%} to uuid of player
 							set {x_factions_FAC::factions::%arg-2%::dtr.raideable} to false
@@ -409,7 +409,7 @@ command f [<text>] [<text>]:
 						if {@wgchek} is false:
 							set {_region} to "%region at player%"
 							if {_region} isn't "<none>":
-								send  "%{@Prefix}% &7You can't claim on the &4warzone"
+								send  "%{@Prefix}% &7You can't claim on this region!"
 								stop
 						#If I found an enemy land to close to the current chunk, I will stop the claim asap.		
 						if {x_factions_FAC::chunks::%chunk at player's location%} isn't set:
@@ -1203,10 +1203,6 @@ command f [<text>] [<text>]:
 			send ""
 			send ""
 			
-			
-options:
-	Prefix: ""&6[&9Forbidden HCF&6]"" 
-	
 command f-admin [<text>] [<text>] [<text>]:
 	permission: skript.faction.admin
 	trigger:
@@ -1316,16 +1312,49 @@ command f-admin [<text>] [<text>] [<text>]:
 					make all players see loop-player's prefix as "&c"
 			send "%{@Prefix}% &8tags updated"		
 
+			
+			
+		if arg-1 isn't set:		
+			send "&6--------------------------------------------"
+			send "&9                     Forbidden HCF"
+			send "&6--------------------------------------------"
+			send "&9/f-admin disband    &2&l>>  &7Disband a faction"
+			send "&9/f-admin kick&2&l >> &7kick a player from the faction"
+			send "&9/f-admin givedtr &2&l>>  &7Give dtr to the faction"
+			send "&9/f-admin removedtr &2&l>>  &7Takes dtr from the faction"
+			send "&9/f-admin stopfreeze &2&l>> &7Remove freeze from the faction"
+			send "&9/f-admin refreshtag &2&l>> &7Refresh the players tag"
+			send "&6---------------------------------------------------"
+			
+		if arg-1 isn't "disband" or "kick" or "givedtr" or "removedtr" or "stopfreeze" or "refreshtag":
+			send "&6--------------------------------------------"
+			send "&9                     Forbidden HCF"
+			send "&6--------------------------------------------"
+			send "&9/f-admin disband    &2&l>>  &7Disband a faction"
+			send "&9/f-admin kick&2&l >> &7kick a player from the faction"
+			send "&9/f-admin givedtr &2&l>>  &7Give dtr to the faction"
+			send "&9/f-admin removedtr &2&l>>  &7Takes dtr from the faction"
+			send "&9/f-admin stopfreeze &2&l>> &7Remove freeze from the faction"
+			send "&9/f-admin refreshtag &2&l>> &7Refresh the players tag"
+			send "&6----------------------------------------------------"
+
+			
+			
 command f-warzone [<integer>]:
+	permission: skript.faction.admin
 	trigger:
 		if arg-1 is set:
-			#if arg-1 is more than 10:
-			#	send "trust me, this will explode, use a number lesser than 10 [160x160 blocks]"
-			#	stop
 			set {_F} to "&4WarZone"
 			set {_center} to player's location#location you want to loop the chunks around
 			set {_radius} to arg-1#radius (in chunks), if it is set to 0 it returns only the chunk at {_center}
 			set {_pos} to {_center}
+			send ""
+			send ""
+			send ""
+			send "%{@Prefix}% &C&lWAIT UNTIL THE DONE MESSAGE APPEARS!!!!"		
+			send ""
+			send ""
+			send ""
 			loop 2 * {_radius} + 1 times:
 				set x-coordinate of {_pos} to x-coordinate of {_center} - 16 * {_radius} + (loop-number - 1) * 16
 				set z-coordinate of {_pos} to z-coordinate of {_center} - 16 * {_radius}
@@ -1346,7 +1375,13 @@ command f-warzone [<integer>]:
 					set {_owner} to {x_factions_FAC::chunks::%loop-value-1%.owner}
 					send "%{@Prefix}% &7The chunk %loop-value-1% is claimed by %{_owner}%, use /f-admin unclaim"
 					send "%{@Prefix}% &8This one won't be claimed as warzone"
-			send "%{@Prefix}% &2Done!"		
+			send ""
+			send ""
+			send ""
+			send "%{@Prefix}% &2&l>>>    Done!    <<<"	
+			send ""
+			send ""
+			send ""
 			stop
 		else:
 			if {x_factions_FAC::chunks::%chunk at player's location%} isn't set:
