@@ -127,11 +127,6 @@ options:
 	land-per-player: 6
 	#should players be able to claim on WG regions?  false=no / true=yes
 	wgchek: false 
-	#
-	# Dmage stuff
-	#set to false if you don't want friendly fire
-	ally-fire: false
-	faction-fire: false
 	
 on script load:
 	loop {x_factions_FAC::players::*}:
@@ -271,7 +266,7 @@ command f [<text>] [<text>]:
 				stop
 			else:	
 				set {_F} to {x_factions_FAC::players::%uuid of player%.faction}
-				if {x_factions_FAC::factions::%{_F}%::mods::%uuid of player%}:
+				if {x_factions_FAC::factions::%{_F}%::mods::%uuid of player%} is set:
 					if arg-2 is set:
 						set {_l} to length of the arg-2
 						if {_l} is more than 16:
@@ -809,6 +804,9 @@ command f [<text>] [<text>]:
 							stop
 						else:
 							set {_p} to uuid of arg-2 parsed as a player
+							if {x_factions_FAC::factions::%{_F}%::owner} is {_p}:
+								send "%{@Prefix}% &7You can't kick the owner!"
+								stop
 							if {x_factions_FAC::factions::%{_F}%::players::%{_p}%} is set:
 								send "%{@Prefix}% %player from uuid {_p}% was Kicked from %{_F}%"
 								delete {x_factions_FAC::factions::%{_F}%::players::%{_p}%}
@@ -853,6 +851,8 @@ command f [<text>] [<text>]:
 								set {_P} to uuid of arg-2 parsed as player
 								if {x_factions_FAC::players::%{_P}%.faction} is {_F}:
 									set {x_factions_FAC::factions::%{_F}%::owner} to {_P}
+									delete {x_factions_FAC::factions::%{_F}%::mods::%uuid of player%}
+									set {x_factions_FAC::factions::%{_F}%::mods::%{_P}%} to {_P}
 									loop {x_factions_FAC::factions::%{_F}%::players::*}:
 										send "%{@Prefix}% &7The owner of &2%{_F}% &7is now &2%player from uuid {_P}% " to player from uuid loop-value									
 									#remove player from the owner
@@ -1492,19 +1492,17 @@ every 1 minute:
 #CANCEL DAMAGE BETWEEN MEMBERS OF FACTION OR ALLY
 on damage of player:	
 	if {x_factions_FAC::players::%uuid of attacker%.faction} isn't "wilder":	
-		if {@ally-fire} is false:
-			if {x_factions_FAC::players::%uuid of attacker%.faction} is {x_factions_FAC::players::%uuid of victim%.faction}:
-				send "&%{@Prefix}% &2%victim% &7is part of your faction" to attacker
+		if {x_factions_FAC::players::%uuid of attacker%.faction} is {x_factions_FAC::players::%uuid of victim%.faction}:
+			send "%{@Prefix}% &2%victim% &7is part of your faction" to attacker
+			cancel event
+			stop
+		set {_faca} to {x_factions_FAC::players::%uuid of attacker%.faction}
+		set {_facv} to {x_factions_FAC::players::%uuid of victim%.faction}
+		if {x_factions_FAC::factions::%{_faca}%::ally} is {_facv}:
+			if {x_factions_FAC::factions::%{_facv}%::ally} is {_faca}:
+				send "%{@Prefix}% &d%victim% &7is part of your ally" to attacker
 				cancel event
 				stop
-		if 	{@faction-fire} is false:
-			set {_faca} to {x_factions_FAC::players::%uuid of attacker%.faction}
-			set {_facv} to {x_factions_FAC::players::%uuid of victim%.faction}
-			if {x_factions_FAC::factions::%{_faca}%::ally} is {_facv}:
-				if {x_factions_FAC::factions::%{_facv}%::ally} is {_faca}:
-					send "&%{@Prefix}% &d%victim% &7is part of your ally" to attacker
-					cancel event
-					stop
 
 #APPLY DTR FREEZE IF PLAYER HAS NO FACTION
 on death of player:
