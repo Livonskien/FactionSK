@@ -1922,9 +1922,9 @@ on chat:
 					
 		# ALLY CHAT
 		if {x_factions_FAC::players::%uuid of player%.chat} is 3:
+			cancel event
 			loop {x_factions_FAC::factions::%{_F}%::relations::confirmed::ally::*}:
 				set {_ally} to loop-value-1
-				cancel event
 				loop {x_factions_FAC::factions::%{_ally}%::players::*}:
 					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value-2
 			loop {x_factions_FAC::factions::%{_F}%::players::*}:
