@@ -684,7 +684,23 @@ command f [<text>] [<text>] [<text>] [<text>]:
 			if {x_factions_FAC::players::%uuid of player%.faction} isn't "wilder":
 				set {_F} to {x_factions_FAC::players::%uuid of player%.faction}
 				if {x_factions_FAC::factions::%{_F}%::home} is set:
-					teleport player to {x_factions_FAC::factions::%{_F}%::home}
+					set {_text} to "%{@Prefix}% &7You will be teleported in {@fhome-delay} seconds. Don't move!"		
+					set {_location} to the player's location	
+					send "%{_text}%" to the player
+					set {_delay} to {@fhome-delay}
+					while {_delay} is greater than 0:
+						if distance between {_location} and the player's location is less than 0.1:
+							subtract 1 from {_delay}
+							wait 1 second
+						else:
+							send "%{@Prefix}% &7Teleport stoped." to the player
+							stop
+					if distance between {_location} and the player's location is less than 0.1:
+						teleport player to {x_factions_FAC::factions::%{_F}%::home}
+						stop
+					else:
+						send "%{@Prefix}% &7Teleport stoped." to the player
+						stop
 				else:
 					send "%{@Prefix}% &7There is no home set"
 					stop
