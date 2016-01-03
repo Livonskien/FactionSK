@@ -123,7 +123,7 @@
 #-added "on skript load", was removed on 0.9, my bad
 #-remove "every 1 second", now it works on a function
 #-removed "on right click" now it work with "on brak" (less spam)
-#- added by pass to the protection zone, use the permission "sk.faction.admin"
+#-added by pass to the protection zone, use the permission "sk.faction.admin"
 
 options:
 	#World where you can claim lands
@@ -1774,22 +1774,19 @@ on script load:
 every 10 tick:
 	loop all players:
 		set {_chunk} to chunk at loop-player's location
-		if {x_factions_FAC::players::%loop-player%.currentchunk} is {_chunk}:
-			stop
-		else:
-			set {x_factions_FAC::players::%loop-player%.currentchunk} to {_chunk}
-			set {x_factions_FAC::players::%loop-player%.currentchunk.owner} to {x_factions_FAC::chunks::%{_chunk}%.owner}
+		set {_uuid} to uuid of loop-player
 		if {x_factions_FAC::chunks::%{_chunk}%} is set:
-			if {x_factions_FAC::players::%loop-player%.notificado_entrada} isn't set:
+			if {x_factions_FAC::players::%{_uuid}%.notificado_entrada} isn't set:
 				send "&cEntering &a%{x_factions_FAC::chunks::%chunk at loop-player's location%.owner}%" to loop-player
-				set {x_factions_FAC::players::%loop-player%.notificado_entrada} to true
-				delete {x_factions_FAC::players::%loop-player%.notificado_salida}
+				set {x_factions_FAC::players::%{_uuid}%.notificado_entrada} to true
+				set {x_factions_FAC::players::%{_uuid}%.lastland} to {x_factions_FAC::chunks::%chunk at loop-player's location%.owner}
+				delete {x_factions_FAC::players::%{_uuid}%.notificado_salida}
 		else:
-			if {x_factions_FAC::players::%loop-player%.notificado_salida} isn't set:
-				delete {x_factions_FAC::players::%loop-player%.notificado_entrada}
-				if {x_factions_FAC::players::%loop-player%.lastland} is set:
-					send "&cLeaving &a %{x_factions_FAC::players::%loop-player%.currentchunk.owner}%" to loop-player
-				set {x_factions_FAC::players::%loop-player%.notificado_salida} to true
+			if {x_factions_FAC::players::%{_uuid}%.notificado_salida} isn't set:
+				delete {x_factions_FAC::players::%{_uuid}%.notificado_entrada}
+				if {x_factions_FAC::players::%{_uuid}%.lastland} is set:
+					send "&cLeaving &a % {x_factions_FAC::players::%{_uuid}%.lastland}%" to loop-player
+				set {x_factions_FAC::players::%{_uuid}%.notificado_salida} to true
 
 every 1 minute:
 	loop {x_factions_FAC::factions::*}:
