@@ -1564,7 +1564,7 @@ command f [<text>] [<text>] [<text>] [<text>]:
 			send "&9/f kick       &2&l>>  &7Quita un jugador de la faction"
 			send "&9/f mod       &2&l>>  &7Da a un miembro rango de MOD"
 			send "&9/f chat      &2&l>> &7Cambias de chat"
-			send ""
+			send "&9/f owner    &2&l>> &7Cambias de chat"
 			send ""
 			stop
 
