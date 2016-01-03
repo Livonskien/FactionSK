@@ -305,6 +305,9 @@ command f [<text>] [<text>] [<text>] [<text>]:
 					if {_l} is less than 4:
 						send "%{@Prefix}% &7The faction name needs at leat 3 characters"
 						stop
+					if {_l} is more than 13:
+						send "%{@Prefix}% &7The faction name can't have more than 13 characters"
+						stop
 					else:
 						if {x_factions_FAC::factions::%arg-2%} is set:
 							send "%{@Prefix}% &7There is a faction named: &c%arg-2%"
@@ -555,6 +558,9 @@ command f [<text>] [<text>] [<text>] [<text>]:
 						set {_l} to length of the arg-2
 						if {_l} is less than 4:
 							send  "%{@Prefix}% &cThe name needs at least 3 characters"
+							stop
+						if {_l} is more than 13:
+							send "%{@Prefix}% &7The faction name can't have more than 13 characters"
 							stop
 						else:
 							if {x_factions_FAC::factions::%arg-2%} is set:
