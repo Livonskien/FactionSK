@@ -1530,7 +1530,7 @@ command f [<text>] [<text>] [<text>] [<text>]:
 			send "&6-----------&9/f 2 &7para mas comandos&6-----------"
 			stop
 
-		if arg-1 isn't "create" or "perms" or "truce" or "invite" or "deinvite" or "join" or "unclaim" or "claim" or "tag" or "sethome" or "show" or "who" or "home" or "leave" or "list" or "disband" or "mod" or "kick" or "owner" or "ally" or "neutral" or "c" or "chat " or "map":
+		if arg-1 isn't "create" or "perms" or "truce" or "invite" or "deinvite" or "join" or "unclaim" or "claim" or "tag" or "sethome" or "show" or "who" or "home" or "leave" or "list" or "disband" or "mod" or "kick" or "owner" or "ally" or "neutral" or "c" or "chat " or "map" or "2" or "3":
 			send "&6--------------------------------------------"
 			send "&9                     Forbidden HCF"
 			send "&6--------------------------------------------"
