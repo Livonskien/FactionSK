@@ -134,7 +134,9 @@ options:
 	ChatSystem: true
 	#Factions prefix, yes double quotes
 	Prefix: ""&6[&9Forbidden HCF&6]""
-
+	#
+	#how much must a player waits beofre they get teleport to the factions home
+	fhome-delay: 10
 	#
 	# DTR STUFF
 	#
