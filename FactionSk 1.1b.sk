@@ -193,10 +193,10 @@ function FactionDtr(F:text):
 
 function FactionTag(l: location):
 	loop all players:
+		make all players see loop-player's prefix as "&c"
 		set {_F} to {x_factions_FAC::players::%uuid of loop-player%.faction}
 		#TAG FACTIONS
 		if {_F} isn't "wilder":
-			make all players see loop-player-1's prefix as "&c"
 			loop {x_factions_FAC::factions::%{_F}%::players::*}:
 				make player from uuid loop-value-2 see loop-value-1's prefix as "&2"
 			if {x_factions_FAC::factions::%{_F}%::relations::confirmed::ally::*} isn't empty:
@@ -204,8 +204,6 @@ function FactionTag(l: location):
 					set {_ally} to loop-value-2
 					loop {x_factions_FAC::factions::%{_ally}%::players::*}:
 						make player from uuid loop-value-3 see loop-value-1's prefix as "&d"
-		else:
-			make all players see loop-player's prefix as "&c"
 
 function FactionShow(F: text, p: player):
 	set {_owner} to player from uuid {x_factions_FAC::factions::%{_F}%::owner}
