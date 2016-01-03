@@ -490,13 +490,14 @@ command f [<text>] [<text>] [<text>] [<text>]:
 									add 16 to z-coordinate of {_pos}
 							#comienzo  buscar enemigos
 							loop {_chunks::*}:
-								if {x_factions_FAC::chunks::%loop-value-2%.owner} is "&4WarZone":
+								if {x_factions_FAC::chunks::%loop-value-1%.owner} is "&4WarZone":
 									send "%{@Prefix}% &7This chunk is too close from the &4WarZone"
 									stop
-								if {x_factions_FAC::chunks::%loop-value-2%} is set:
-									if {x_factions_FAC::chunks::%loop-value-2%.owner} isn't {_F}:
+								if {x_factions_FAC::chunks::%loop-value-1%} is set:
+									if {x_factions_FAC::chunks::%loop-value-1%.owner} isn't {_F}:
 										send "%{@Prefix}% &7This chunk is too close to an enemy land"
 										stop
+
 							#If the faction owns a land already, I need to virify if the current chunk is contiguous to the other lands
 							if {x_factions_FAC::factions::%{_F}%::lands::*} is set:
 								set {_center} to player's location#location you want to loop the chunks around
@@ -514,8 +515,8 @@ command f [<text>] [<text>] [<text>] [<text>]:
 								#Actually checking if the chunk is contiguous:
 								set {_contiguo} to false
 								loop {_chunks2::*}:
-									if {x_factions_FAC::chunks::%loop-value-2%} is set:
-										if {x_factions_FAC::chunks::%loop-value-2%.owner} is {_F}:
+									if {x_factions_FAC::chunks::%loop-value-1%} is set:
+										if {x_factions_FAC::chunks::%loop-value-1%.owner} is {_F}:
 											set {_contiguo} to true
 							else:
 								#if they don't own any land, I don't care if the land is contiguous
