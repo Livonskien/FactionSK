@@ -1929,10 +1929,10 @@ on chat:
 				# stop
 			# if player has the permission "skript.chat.somevip":
 				# cancel event
-				# broadcast "&6[&c%{_F}%&6]&2%player%&f: %message%"
+				# broadcast "&6[&c%{_F}%&6] &2%player%&f: %message%"
 				# stop
 			cancel event
-			broadcast "&6[&c%{_F}%&6]&a%player%&f: %message%"
+			broadcast "&6[&c%{_F}%&6] &a%player%&f: %message%"
 			stop
 
 		#FACTION CHAT
