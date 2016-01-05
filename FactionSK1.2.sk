@@ -1951,4 +1951,4 @@ on chat:
 					send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value-2
 			loop {x_factions_FAC::factions::%{_F}%::players::*}:
 				send "&f<&d%{_F}% &d%player%&f>: &d%message%" to player from uuid loop-value-1
-      stop
+			stop
